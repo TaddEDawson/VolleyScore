@@ -27,23 +27,25 @@ the page displays a message; use the browser's own full-screen command instead.
 
 ## Screen layout
 
-The header uses at least the upper 20% of the viewport. It expands when needed
-to keep text readable and controls at least 44 by 44 CSS pixels, rather than
-shrinking them on small screens:
+The compact header uses only the space needed for the local date/time, a single
+toolbar row, and the reserved winner labels. Controls retain touch targets of at
+least 44 by 44 CSS pixels:
 
-- **New set**, shown as circular refresh arrows, is on the left.
-- The **two-minute countdown** is in the center.
-- A short message explains when the countdown can be started.
-- The **local clock** and **Set** duration are on the right.
-- **Help**, shown as a question mark below the set timer, opens a quick functionality synopsis and shows
+- The device's **local date and time** appear in the upper-right corner.
+- **New set** (circular refresh arrows), the **two-minute countdown**, **Set**
+  duration, **Full screen**, and **Help** share one row and are vertically centered.
+- The countdown is dimmed while idle and brightens when started manually or
+  automatically at `:58`. It stays bright when it displays **TIMES UP**.
+- Countdown guidance is available through its tooltip and accessible description
+  rather than a visible line of instructions.
+- **Help**, shown as a question mark, opens a quick functionality synopsis and shows
   the app version (**1.0.0**).
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
   is reserved throughout the set so announcing or clearing a winner does not
   shift the controls or score panels.
 
-The score panels split the remaining space equally (up to the lower 80%). On
-narrow screens, the countdown and action buttons occupy separate header rows:
+The score panels split all the remaining space equally:
 
 | Side | Label | Appearance |
 | --- | --- | --- |
@@ -119,9 +121,9 @@ set finished.
 
 ### Local clock
 
-The upper-right clock displays the device's local time, including seconds, using
-the browser's locale formatting. It does not synchronize with an internet time
-service.
+The upper-right clock displays the device's local date and time, including
+seconds, using the browser's locale formatting. It does not synchronize with
+an internet time service.
 
 ### Set duration
 
@@ -140,6 +142,9 @@ There is no manual pause button. This timer is independent of the countdown.
 ### Two-minute countdown
 
 The center button initially displays `2:00`.
+It is dimmed until a manual or automatic countdown starts. Resetting restores
+the dimmed idle state; dimming does not prevent an otherwise available manual
+start.
 
 **Manual start**
 
@@ -222,7 +227,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
    clears both scores, the winner, and both timers.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
-9. **Help** appears below the set timer, opens the synopsis with version `1.0.0`,
+9. **Help** appears alongside the set timer, opens the synopsis with version `1.0.0`,
    starts at the top, and closes without changing scores or stopping timers.
 10. Header controls retain readable text and 44-pixel minimum touch targets.
     Winner and countdown-completion status messages provide useful context
