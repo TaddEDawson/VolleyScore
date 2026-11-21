@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VolleyScore</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      display: grid;
+      grid-template-rows: 1fr 4fr;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      overflow: hidden;
+      background: #101218;
+      color: #fff;
+      font: 1rem system-ui, sans-serif;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "reset . clock" "status status status";
+      align-items: start;
+      padding: clamp(0.25rem, 2vmin, 1rem);
+    }
+
+    #reset {
+      grid-area: reset;
+      border: 1px solid currentColor;
+      border-radius: 0.35rem;
+      padding: 0.25em 0.6em;
+    }
+
+    #clock {
+      grid-area: clock;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #status {
+      grid-area: status;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      min-height: 0;
+    }
+
+    .side {
+      position: relative;
+      display: grid;
+      grid-template: repeat(2, minmax(0, 1fr)) / repeat(2, minmax(0, 1fr));
+      overflow: hidden;
+    }
+
+    .red { background: #b00020; }
+    .blue { background: #001f54; }
+
+    .score {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      font: bold min(26vw, 56vh) / 1 ui-monospace, monospace;
+    }
+
+    button {
+      border: 0;
+      background: none;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    button:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: -4px;
+    }
+
+    .point {
+      grid-column: span 2;
+      display: grid;
+      justify-items: center;
+      align-items: start;
+      padding-top: 0.5rem;
+    }
+
+    .point[aria-disabled="true"] { cursor: default; }
+
+    .subtract {
+      display: grid;
+      justify-items: start;
+      align-items: end;
+      padding: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="reset" type="button">New set</button>
+    <time id="clock" aria-label="Local time"></time>
+    <div id="status" role="status"></div>
+  </header>
+  <main aria-label="Volleyball scoreboard">
+    <section class="side red" aria-label="Red side">
+      <button class="point" type="button" aria-label="Add one point to Red">+1</button>
+      <button class="subtract" type="button" aria-label="Subtract one point from Red">−1</button>
+      <output class="score" aria-label="Red score">00</output>
+    </section>
+    <section class="side blue" aria-label="Blue side">
+      <button class="point" type="button" aria-label="Add one point to Blue">+1</button>
+      <button class="subtract" type="button" aria-label="Subtract one point from Blue">−1</button>
+      <output class="score" aria-label="Blue score">00</output>
+    </section>
+  </main>
+  <script>
+    const scores = [0, 0];
+    const teams = ['Red', 'Blue'];
+    const displays = document.querySelectorAll('.score');
+    const addButtons = document.querySelectorAll('.point');
+    const status = document.querySelector('#status');
+    const clock = document.querySelector('#clock');
+    let winner = -1;
+
+    function render() {
+      winner = scores.findIndex((score, side) => score >= 25 && score - scores[1 - side] >= 2);
+      scores.forEach((score, side) => {
+        displays[side].value = String(score).padStart(2, '0');
+        addButtons[side].setAttribute('aria-disabled', String(winner !== -1));
+      });
+      status.textContent = winner === -1 ? '' : `${teams[winner]} wins the set`;
+    }
+
+    addButtons.forEach((button, side) => {
+      button.addEventListener('click', () => {
+        if (winner !== -1) return;
+        scores[side]++;
+        render();
+      });
+    });
+
+    document.querySelectorAll('.subtract').forEach((button, side) => {
+      button.addEventListener('click', () => {
+        if (scores[side] === 0) return;
+        scores[side]--;
+        render();
+      });
+    });
+
+    document.querySelector('#reset').addEventListener('click', () => {
+      scores.fill(0);
+      render();
+    });
+
+    const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: 'medium' });
+    const updateClock = () => { clock.textContent = timeFormat.format(new Date()); };
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
