@@ -13,11 +13,11 @@
 <header>
  <div class="top"><h1>VOLLEYBALL <span style="font-weight:400">/ SCOREBOARD</span></h1><time id="clock" aria-label="Current local time"></time></div>
  <div class="bottom"><div id="status" role="status" aria-live="polite">First to 25 · Win by 2</div><div class="tools"><button id="fullscreen" type="button">Full screen</button><button id="reset" type="button">New set</button></div></div>
- <p class="hint">Tap the upper half for +1 · Tap the lower half for −1</p>
+ <p class="hint">Tap the upper half to add a point · Tap the lower half to subtract a point</p>
 </header>
 <main aria-label="Set scores">
- <section class="side red" aria-label="Left team"><div class="label">LEFT</div><div class="score" id="left-score">00</div><button class="zone plus" data-team="0" data-change="1" aria-label="Add one point to left team"><span class="symbol" aria-hidden="true">+</span></button><button class="zone minus" data-team="0" data-change="-1" aria-label="Subtract one point from left team"><span class="symbol" aria-hidden="true">−1</span></button></section>
- <section class="side blue" aria-label="Right team"><div class="label">RIGHT</div><div class="score" id="right-score">00</div><button class="zone plus" data-team="1" data-change="1" aria-label="Add one point to right team"><span class="symbol" aria-hidden="true">+</span></button><button class="zone minus" data-team="1" data-change="-1" aria-label="Subtract one point from right team"><span class="symbol" aria-hidden="true">−1</span></button></section>
+ <section class="side red" aria-label="Left team"><div class="label">LEFT</div><div class="score" id="left-score">00</div><button class="zone plus" data-team="0" data-change="1" aria-label="Add one point to left team"><span class="symbol" aria-hidden="true">+</span></button><button class="zone minus" data-team="0" data-change="-1" aria-label="Subtract one point from left team"><span class="symbol" aria-hidden="true">−</span></button></section>
+ <section class="side blue" aria-label="Right team"><div class="label">RIGHT</div><div class="score" id="right-score">00</div><button class="zone plus" data-team="1" data-change="1" aria-label="Add one point to right team"><span class="symbol" aria-hidden="true">+</span></button><button class="zone minus" data-team="1" data-change="-1" aria-label="Subtract one point from right team"><span class="symbol" aria-hidden="true">−</span></button></section>
 </main>
 <dialog id="reset-dialog" aria-labelledby="reset-title"><h2 id="reset-title">Start a new set?</h2><p>Both scores will return to 00.</p><form method="dialog"><button value="cancel" autofocus>Cancel</button><button value="reset">Start new set</button></form></dialog>
 <script>
