@@ -25,10 +25,13 @@ the page displays a message; use the browser's own full-screen command instead.
 
 ## Screen layout
 
-The header occupies the upper 20% of the viewport:
+The header uses at least the upper 20% of the viewport. It expands when needed
+to keep text readable and controls at least 44 by 44 CSS pixels, rather than
+shrinking them on small screens:
 
 - **New set** is on the left.
 - The **two-minute countdown** is in the center.
+- A short message explains when the countdown can be started.
 - The **local clock** and **Set** duration are on the right.
 - **Help**, below the set timer, opens a quick functionality synopsis and shows
   the app version (**1.0.0**).
@@ -37,7 +40,8 @@ The header occupies the upper 20% of the viewport:
   is reserved throughout the set so announcing or clearing a winner does not
   shift the controls or score panels.
 
-The score panels share the lower 80% equally:
+The score panels split the remaining space equally (up to the lower 80%). On
+narrow screens, the countdown and action buttons occupy separate header rows:
 
 | Side | Label | Appearance |
 | --- | --- | --- |
@@ -55,6 +59,8 @@ Select **Help** to open an offline, in-page popup summarizing scoring, winning,
 timers, reset behavior, and data loss on reload. Close it with **Close** or
 **Escape**; keyboard focus returns to the Help button. While the popup is open,
 the scoreboard controls are unavailable, but clocks and timers continue running.
+Help opens at the top with its heading focused so the synopsis and version are
+visible first. Its Close button stays at the top while the content scrolls.
 
 ## Scoring controls
 
@@ -62,7 +68,7 @@ the scoreboard controls are unavailable, but clocks and timers continue running.
 | --- | --- | --- |
 | Add a point | Upper half of the HOME or AWAY panel, marked `+` | Adds one point to that side |
 | Correct a point | Lower half of the HOME or AWAY panel, marked minus | Subtracts one point from that side |
-| Start another set | **New set** | Immediately clears scores and both timers |
+| Start another set | **New set** | Asks for confirmation when scores or timers are in use, then clears them |
 
 The touch targets cover the panel halves, not just the visible symbols or digits.
 Either side's entire lower half can subtract a point. Scores cannot go below
@@ -72,6 +78,8 @@ For keyboard operation, use **Tab** or **Shift+Tab** to focus a control, then
 **Enter** or **Space** to activate it. Focused buttons have a visible outline.
 Controls and score outputs have accessible labels identifying their team and
 action or current score.
+Unavailable controls have a contrasting background and dashed border. Subtraction
+is unavailable at zero; additions become unavailable after a win.
 
 ## Winning a set and correcting scores
 
@@ -93,7 +101,9 @@ Examples:
 
 After a win, both add-point controls stop accepting points and the winning side
 shows **WINNER**. Subtraction remains available on either side so mistakes can
-be corrected.
+be corrected, provided that side's score is above zero. A screen-reader status
+message names the winning team, such as "HOME wins the set." Reopening the set
+announces that play continues.
 
 The winner is recalculated after every correction. For example, changing
 `25-23` to `24-23` removes the winner label, unlocks point additions, and resumes
@@ -147,19 +157,26 @@ The center button initially displays `2:00`.
   after an early countdown has already expired.
 
 **TIMES UP** remains until another countdown starts, manually or automatically,
-or **New set** is selected. Expiration is visual only: there is no sound,
-notification, score change, or automatic end to the set.
+or a reset is completed. Expiration is announced once through a polite
+screen-reader status message; ticking seconds are not continuously announced.
+There is no alarm sound, system notification, score change, or automatic end
+to the set.
 
 ## Reset behavior
 
-**New set** acts immediately, without a confirmation dialog. It:
+**New set** asks for confirmation if scores, set duration, or countdown state
+would be lost. **Cancel** is initially focused. Select **Start new set** to
+confirm, or **Cancel** or **Escape** to keep the current scores and timers.
+Timers keep running while confirmation is open. An unused set resets immediately.
+
+A confirmed reset:
 
 - Restores HOME and AWAY to `00`.
 - Clears the winner labels and unlocks scoring.
 - Clears and stops the set-duration timer.
 - Cancels the countdown and restores its display to `2:00`.
 
-If reset occurs during minutes `:58` or `:59`, that hour's automatic countdown is
+If the reset is completed during minutes `:58` or `:59`, that hour's automatic countdown is
 suppressed. The countdown stays at `2:00` but cannot be started manually until
 the next hour. Future hourly automatic countdowns still work.
 
@@ -179,8 +196,9 @@ the next hour. Future hourly automatic countdowns still work.
 - HOME and AWAY labels, colors, the 25-point target, and the two-point winning
   margin are fixed. There are no configurable team names, 15-point deciding-set
   mode, match-level set totals, history, undo, export, or multi-device syncing.
-- Use a current browser supporting CSS Grid, SVG, and modern JavaScript APIs.
-- The Help popup also requires native HTML dialog support.
+- Use a current browser supporting CSS Grid, container query units, SVG, and
+  modern JavaScript APIs. Help and reset confirmation require native HTML dialog
+  support.
   No legacy-browser compatibility layer is included.
 
 ## Functionality check
@@ -195,8 +213,12 @@ To check the page after changes, open [index.html](index.html) directly and veri
    with **TIMES UP** without changing scores.
 6. The automatic countdown follows the local `:58` window and respects an
    already-running manual countdown.
-7. **New set** clears both scores, the winner, and both timers.
+7. Cancelling **New set** preserves the current scores and timers; confirming
+   clears both scores, the winner, and both timers.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
 9. **Help** appears below the set timer, opens the synopsis with version `1.0.0`,
-   and closes without changing scores or stopping timers.
+   starts at the top, and closes without changing scores or stopping timers.
+10. Header controls retain readable text and 44-pixel minimum touch targets.
+    Winner and countdown-completion status messages provide useful context
+    without continuous timer announcements.

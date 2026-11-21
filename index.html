@@ -9,7 +9,7 @@
 
     body {
       display: grid;
-      grid-template-rows: 1fr 4fr;
+      grid-template-rows: minmax(20%, max-content) minmax(0, 1fr);
       height: 100vh;
       height: 100dvh;
       margin: 0;
@@ -22,10 +22,11 @@
     header {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      grid-template-areas: "reset countdown clocks" "status status status";
-      grid-template-rows: 1fr auto;
+      grid-template-areas: "reset countdown clocks" "actions actions actions"
+        "note note note" "status status status";
+      grid-template-rows: minmax(44px, 1fr) auto auto auto;
       align-items: center;
-      column-gap: 0.25rem;
+      gap: 0.25rem;
       padding: clamp(0.25rem, 2vmin, 1rem);
     }
 
@@ -35,7 +36,7 @@
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.25em 0.6em;
-      font-size: min(4.5vh, 3.8vw, 2.25rem);
+      font-size: clamp(1rem, min(4.5vh, 3.8vw), 2.25rem);
       white-space: nowrap;
     }
 
@@ -44,29 +45,41 @@
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.5em;
-      font-size: min(7vh, 4.8vw, 2.8rem);
+      font-size: clamp(1.125rem, min(7vh, 4.8vw), 2.8rem);
       font-weight: bold;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
 
-    #countdown[aria-disabled="true"] { cursor: default; }
+    #countdown[aria-disabled="true"] {
+      border-style: dashed;
+      background: #ffffff1a;
+    }
+
+    #countdown-note {
+      grid-area: note;
+      min-height: 2.4em;
+      margin: 0;
+      text-align: center;
+      font-size: 0.875rem;
+      line-height: 1.2;
+    }
 
     .clocks {
       grid-area: clocks;
       text-align: right;
-      font-size: min(3.2vh, 3.8vw, 2.25rem);
+      font-size: clamp(1rem, min(3.2vh, 3.8vw), 2.25rem);
       line-height: 1.15;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
 
     .clock-actions {
+      grid-area: actions;
       display: flex;
       justify-content: flex-end;
       gap: 0.25em;
-      margin-top: 0.15em;
-      font-size: min(2.3vh, 2.6vw, 1.25rem);
+      font-size: 1rem;
       line-height: 1.2;
     }
 
@@ -76,7 +89,7 @@
       padding: 0.1em 0.6em;
     }
 
-    #help-dialog {
+    dialog {
       width: min(34rem, 92vw);
       max-height: 90vh;
       max-height: 90dvh;
@@ -88,14 +101,47 @@
       color: #fff;
     }
 
-    #help-dialog::backdrop { background: #000b; }
-    #help-dialog h2 { margin-top: 0; }
+    dialog::backdrop { background: #000b; }
+    dialog h2 { margin-top: 0; }
     #help-dialog li { margin-bottom: 0.5rem; }
 
-    #help-dialog button {
+    dialog button {
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.35em 0.8em;
+    }
+
+    .dialog-header {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: start;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+      background: #101218;
+    }
+
+    .dialog-header h2 {
+      flex: 1;
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    #help-title:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
     }
 
     #status {
@@ -106,7 +152,7 @@
       margin-inline: calc(-1 * clamp(0.25rem, 2vmin, 1rem));
       text-align: center;
       font-weight: bold;
-      font-size: min(4.5vh, 4vw, 2.25rem);
+      font-size: clamp(1rem, min(4.5vh, 4vw), 2.25rem);
       line-height: 1;
     }
 
@@ -114,10 +160,11 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       min-height: 0;
+      container-type: size;
     }
 
     .side {
-      --score-size: min(37.5vw, 34vh);
+      --score-size: min(37.5vw, 42cqh);
       --score-width: 1.28;
       --label-size: calc(var(--score-size) / 4);
       position: relative;
@@ -166,6 +213,13 @@
       touch-action: manipulation;
     }
 
+    header button, dialog button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+
+    button[aria-disabled="true"] { cursor: not-allowed; }
+
     button:focus-visible {
       outline: 2px solid currentColor;
       outline-offset: -4px;
@@ -181,7 +235,18 @@
       line-height: 1.2;
     }
 
-    .point[aria-disabled="true"] { cursor: default; }
+    .side button[aria-disabled="true"] {
+      background: #0003;
+    }
+
+    .side button span {
+      border: 2px solid transparent;
+      border-radius: 0.25rem;
+      padding: 0 0.15em;
+      line-height: 1;
+    }
+
+    .side button[aria-disabled="true"] span { border: 2px dashed #fff; }
 
     .subtract {
       grid-column: span 2;
@@ -192,38 +257,59 @@
       font-size: var(--label-size);
       line-height: 1.2;
     }
+
+    @media (max-width: 600px) {
+      header {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas: "reset clocks" "countdown countdown"
+          "actions actions" "note note" "status status";
+        grid-template-rows: minmax(44px, 1fr) auto auto auto auto;
+      }
+
+      #countdown { justify-self: center; }
+    }
   </style>
 </head>
 <body>
   <header>
     <button id="reset" type="button">New set</button>
-    <button id="countdown" type="button" aria-label="Start countdown: 2:00">2:00</button>
+    <button id="countdown" type="button" aria-label="Start countdown: 2:00"
+      aria-describedby="countdown-note">2:00</button>
     <div class="clocks">
       <time id="clock" aria-label="Local time"></time>
       <div>Set <span id="set-duration" role="timer" aria-label="Set duration">0:00</span></div>
-      <div class="clock-actions">
-        <button id="fullscreen" type="button" aria-pressed="false">Full screen</button>
-        <button id="help" type="button" aria-haspopup="dialog" aria-controls="help-dialog">Help</button>
-      </div>
     </div>
-    <div id="status" role="status"><span></span><span></span></div>
+    <div class="clock-actions">
+      <button id="fullscreen" type="button" aria-pressed="false">Full screen</button>
+      <button id="help" type="button" aria-haspopup="dialog" aria-controls="help-dialog">Help</button>
+    </div>
+    <p id="countdown-note">Tap to start two minutes. Auto starts at :58.</p>
+    <div id="status" role="status" aria-atomic="true">
+      <span class="winner-label" aria-hidden="true"></span>
+      <span class="winner-label" aria-hidden="true"></span>
+      <span id="winner-announcement" class="sr-only"></span>
+    </div>
   </header>
+  <div id="countdown-announcement" class="sr-only" role="status" aria-atomic="true"></div>
   <main aria-label="Volleyball scoreboard">
     <section class="side red" aria-label="HOME side">
       <div class="team-label">HOME</div>
-      <button class="point" type="button" aria-label="Add one point to HOME">+</button>
-      <button class="subtract" type="button" aria-label="Subtract one point from HOME">−</button>
+      <button class="point" type="button" aria-label="Add one point to HOME"><span aria-hidden="true">+</span></button>
+      <button class="subtract" type="button" aria-label="Subtract one point from HOME"><span aria-hidden="true">−</span></button>
       <output class="score" aria-label="HOME score 00"><svg aria-hidden="true"></svg></output>
     </section>
     <section class="side blue" aria-label="AWAY side">
       <div class="team-label">AWAY</div>
-      <button class="point" type="button" aria-label="Add one point to AWAY">+</button>
-      <button class="subtract" type="button" aria-label="Subtract one point from AWAY">−</button>
+      <button class="point" type="button" aria-label="Add one point to AWAY"><span aria-hidden="true">+</span></button>
+      <button class="subtract" type="button" aria-label="Subtract one point from AWAY"><span aria-hidden="true">−</span></button>
       <output class="score" aria-label="AWAY score 00"><svg aria-hidden="true"></svg></output>
     </section>
   </main>
   <dialog id="help-dialog" aria-labelledby="help-title">
-    <h2 id="help-title">VolleyScore Help</h2>
+    <div class="dialog-header">
+      <h2 id="help-title" tabindex="-1" autofocus>VolleyScore Help</h2>
+      <form method="dialog"><button type="submit">Close</button></form>
+    </div>
     <p>Version 1.0.0</p>
     <ul>
       <li><strong>Score:</strong> Tap the upper half of HOME or AWAY to add a point.
@@ -236,7 +322,8 @@
         minute :58. It also starts automatically at :58 each hour, counting down
         to the next hour. A countdown already running keeps its end time.
         Active countdowns cannot restart; expiration shows TIMES UP without sound.</li>
-      <li><strong>New set:</strong> Immediately clears scores and both timers.
+      <li><strong>New set:</strong> Asks for confirmation before clearing scores
+        or timers already in use. Cancel keeps the current set.
         During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
       <li><strong>Full screen:</strong> Expand the scoreboard to fill the screen.
         Select Exit full screen or press Escape to leave full-screen mode.</li>
@@ -245,8 +332,13 @@
     </ul>
     <p>Help does not pause either timer. Use Tab to focus controls and Enter or
       Space to activate them. Close this popup with Close or Escape.</p>
+  </dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-message">
+    <h2 id="reset-title">Start a new set?</h2>
+    <p id="reset-message">This clears both scores and both timers. This cannot be undone.</p>
     <form method="dialog">
-      <button type="submit" autofocus>Close</button>
+      <button type="submit" value="cancel" autofocus>Cancel</button>
+      <button type="submit" value="reset">Start new set</button>
     </form>
   </dialog>
   <script>
@@ -254,9 +346,13 @@
     const teams = ['HOME', 'AWAY'];
     const displays = document.querySelectorAll('.score');
     const addButtons = document.querySelectorAll('.point');
-    const winnerLabels = document.querySelectorAll('#status span');
+    const subtractButtons = document.querySelectorAll('.subtract');
+    const winnerLabels = document.querySelectorAll('.winner-label');
+    const winnerAnnouncement = document.querySelector('#winner-announcement');
     const clock = document.querySelector('#clock');
     const countdown = document.querySelector('#countdown');
+    const countdownNote = document.querySelector('#countdown-note');
+    const countdownAnnouncement = document.querySelector('#countdown-announcement');
     const setDuration = document.querySelector('#set-duration');
     const countdownSeconds = 120;
     const countdownLength = countdownSeconds * 1000;
@@ -280,7 +376,11 @@
     let winner = -1;
 
     const helpDialog = document.querySelector('#help-dialog');
-    document.querySelector('#help').addEventListener('click', () => helpDialog.showModal());
+    document.querySelector('#help').addEventListener('click', () => {
+      helpDialog.showModal();
+      helpDialog.scrollTop = 0;
+      document.querySelector('#help-title').focus({ preventScroll: true });
+    });
 
     const fullscreen = document.querySelector('#fullscreen');
     fullscreen.addEventListener('click', async () => {
@@ -318,7 +418,7 @@
       svg.setAttribute('viewBox', `0 0 ${width} 100`);
       svg.replaceChildren(...shapes);
       display.setAttribute('aria-label', `${team} score ${text}`);
-      display.parentElement.style.setProperty('--score-size', `min(calc(4800vw / ${width}), 34vh)`);
+      display.parentElement.style.setProperty('--score-size', `min(calc(4800vw / ${width}), 42cqh)`);
       display.parentElement.style.setProperty('--score-width', width / 100);
     }
 
@@ -353,7 +453,14 @@
         : remaining <= 0 ? 'TIMES UP' : formatDuration(Math.ceil(remaining / 1000));
       const canStart = remaining <= 0 && minutes < 58;
       const label = `${canStart ? 'Start countdown' : 'Countdown'}: ${text}`;
-      if (countdown.textContent !== text) countdown.textContent = text;
+      if (countdown.textContent !== text) {
+        countdown.textContent = text;
+        countdownAnnouncement.textContent = text === 'TIMES UP' ? 'Countdown finished. Time is up.' : '';
+      }
+      const note = minutes >= 58 ? 'Automatic :58 window. Manual starts resume next hour.'
+        : remaining > 0 ? 'Countdown running. Wait until it ends to restart.'
+        : 'Tap to start two minutes. Auto starts at :58.';
+      if (countdownNote.textContent !== note) countdownNote.textContent = note;
       if (countdown.getAttribute('aria-label') !== label) countdown.setAttribute('aria-label', label);
       if (countdown.getAttribute('aria-disabled') !== String(!canStart)) {
         countdown.setAttribute('aria-disabled', String(!canStart));
@@ -373,8 +480,15 @@
       scores.forEach((score, side) => {
         renderScore(displays[side], teams[side], score);
         addButtons[side].setAttribute('aria-disabled', String(winner !== -1));
+        addButtons[side].title = winner === -1 ? '' : 'Set finished. Subtract points to correct the score.';
+        subtractButtons[side].setAttribute('aria-disabled', String(score === 0));
+        subtractButtons[side].title = score === 0 ? 'Score is already zero.' : '';
         winnerLabels[side].textContent = winner === side ? 'WINNER' : '';
       });
+      if (winner !== previousWinner) {
+        winnerAnnouncement.textContent = winner === -1 ? 'Score corrected. Play continues.'
+          : `${teams[winner]} wins the set.`;
+      }
     }
 
     addButtons.forEach((button, side) => {
@@ -387,7 +501,7 @@
       });
     });
 
-    document.querySelectorAll('.subtract').forEach((button, side) => {
+    subtractButtons.forEach((button, side) => {
       button.addEventListener('click', () => {
         if (scores[side] === 0) return;
         scores[side]--;
@@ -395,7 +509,7 @@
       });
     });
 
-    document.querySelector('#reset').addEventListener('click', () => {
+    function resetSet() {
       scores.fill(0);
       winner = -1;
       setRunningSince = null;
@@ -405,6 +519,21 @@
       if (now.getMinutes() >= 58) lastAutomaticEnd = currentHourEnd(now);
       updateCountdown(now);
       render();
+      winnerAnnouncement.textContent = 'New set. Both scores reset to zero.';
+    }
+
+    const resetDialog = document.querySelector('#reset-dialog');
+    document.querySelector('#reset').addEventListener('click', () => {
+      if (scores.some(score => score > 0) || setRunningSince !== null
+        || setElapsed > 0 || countdownEndsAt !== 0) {
+        resetDialog.returnValue = 'cancel';
+        resetDialog.showModal();
+      } else {
+        resetSet();
+      }
+    });
+    resetDialog.addEventListener('close', () => {
+      if (resetDialog.returnValue === 'reset') resetSet();
     });
 
     countdown.addEventListener('click', () => {
