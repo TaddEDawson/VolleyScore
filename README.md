@@ -16,10 +16,12 @@ downloaded fonts, or internet connection is required.
 3. Check the device's local time, since it controls the clock and automatic
    countdown.
 4. Tap or click the upper half of the side that wins a point.
-5. Use **New set** when you are ready to clear the current set.
+5. Use **New set** (the circular refresh arrows) when you are ready to clear the
+   current set.
 
 The scoreboard works with a touchscreen, mouse, or keyboard. Select **Full screen**
-to the left of Help to fill the screen. Select **Exit full screen** or press
+(the arrows pointing upper-right and lower-left) to the left of Help to fill the
+screen. Select the same icon again or press
 **Escape** to leave full-screen mode. If the browser blocks the Fullscreen API,
 the page displays a message; use the browser's own full-screen command instead.
 
@@ -29,13 +31,13 @@ The header uses at least the upper 20% of the viewport. It expands when needed
 to keep text readable and controls at least 44 by 44 CSS pixels, rather than
 shrinking them on small screens:
 
-- **New set** is on the left.
+- **New set**, shown as circular refresh arrows, is on the left.
 - The **two-minute countdown** is in the center.
 - A short message explains when the countdown can be started.
 - The **local clock** and **Set** duration are on the right.
-- **Help**, below the set timer, opens a quick functionality synopsis and shows
+- **Help**, shown as a question mark below the set timer, opens a quick functionality synopsis and shows
   the app version (**1.0.0**).
-- **Full screen** is immediately to the left of Help.
+- **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
   is reserved throughout the set so announcing or clearing a winner does not
   shift the controls or score panels.
@@ -78,6 +80,9 @@ For keyboard operation, use **Tab** or **Shift+Tab** to focus a control, then
 **Enter** or **Space** to activate it. Focused buttons have a visible outline.
 Controls and score outputs have accessible labels identifying their team and
 action or current score.
+Icon-only buttons retain descriptive accessible names and hover tooltips. The
+full-screen icon is highlighted while active and its name changes to
+**Exit full screen**.
 Unavailable controls have a contrasting background and dashed border. Subtraction
 is unavailable at zero; additions become unavailable after a win.
 

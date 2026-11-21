@@ -35,9 +35,6 @@
       justify-self: start;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
-      padding: 0.25em 0.6em;
-      font-size: clamp(1rem, min(4.5vh, 3.8vw), 2.25rem);
-      white-space: nowrap;
     }
 
     #countdown {
@@ -218,6 +215,26 @@
       min-height: 44px;
     }
 
+    header button.icon-button {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+    }
+
+    .icon-button svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .icon-button[aria-pressed="true"] { background: #ffffff1a; }
+
     button[aria-disabled="true"] { cursor: not-allowed; }
 
     button:focus-visible {
@@ -272,7 +289,12 @@
 </head>
 <body>
   <header>
-    <button id="reset" type="button">New set</button>
+    <button id="reset" class="icon-button" type="button" aria-label="New set" title="New set">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5"/>
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/>
+      </svg>
+    </button>
     <button id="countdown" type="button" aria-label="Start countdown: 2:00"
       aria-describedby="countdown-note">2:00</button>
     <div class="clocks">
@@ -280,8 +302,19 @@
       <div>Set <span id="set-duration" role="timer" aria-label="Set duration">0:00</span></div>
     </div>
     <div class="clock-actions">
-      <button id="fullscreen" type="button" aria-pressed="false">Full screen</button>
-      <button id="help" type="button" aria-haspopup="dialog" aria-controls="help-dialog">Help</button>
+      <button id="fullscreen" class="icon-button" type="button" aria-label="Full screen"
+        title="Full screen" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M14 4h6v6M20 4l-6 6M4 14v6h6M4 20l6-6"/>
+        </svg>
+      </button>
+      <button id="help" class="icon-button" type="button" aria-label="Help" title="Help"
+        aria-haspopup="dialog" aria-controls="help-dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>
+        </svg>
+      </button>
     </div>
     <p id="countdown-note">Tap to start two minutes. Auto starts at :58.</p>
     <div id="status" role="status" aria-atomic="true">
@@ -322,11 +355,11 @@
         minute :58. It also starts automatically at :58 each hour, counting down
         to the next hour. A countdown already running keeps its end time.
         Active countdowns cannot restart; expiration shows TIMES UP without sound.</li>
-      <li><strong>New set:</strong> Asks for confirmation before clearing scores
+      <li><strong>New set (circular arrows):</strong> Asks for confirmation before clearing scores
         or timers already in use. Cancel keeps the current set.
         During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
-      <li><strong>Full screen:</strong> Expand the scoreboard to fill the screen.
-        Select Exit full screen or press Escape to leave full-screen mode.</li>
+      <li><strong>Full screen (diagonal arrows):</strong> Expand the scoreboard to fill the screen.
+        Select the icon again or press Escape to leave full-screen mode.</li>
       <li><strong>Offline:</strong> No internet is needed. The clock uses local
         device time. Reloading or closing the page loses scores and timers.</li>
     </ul>
@@ -398,7 +431,9 @@
     });
     document.addEventListener('fullscreenchange', () => {
       const active = document.fullscreenElement !== null;
-      fullscreen.textContent = active ? 'Exit full screen' : 'Full screen';
+      const label = active ? 'Exit full screen' : 'Full screen';
+      fullscreen.setAttribute('aria-label', label);
+      fullscreen.title = label;
       fullscreen.setAttribute('aria-pressed', String(active));
     });
 
