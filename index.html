@@ -58,6 +58,18 @@
       overflow: hidden;
     }
 
+    .team-label {
+      position: absolute;
+      z-index: 1;
+      top: 0.5rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      pointer-events: none;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+    }
+
     .red { background: #b00020; }
     .blue { background: #001f54; }
 
@@ -109,20 +121,22 @@
     <div id="status" role="status"></div>
   </header>
   <main aria-label="Volleyball scoreboard">
-    <section class="side red" aria-label="Red side">
-      <button class="point" type="button" aria-label="Add one point to Red">+1</button>
-      <button class="subtract" type="button" aria-label="Subtract one point from Red">−1</button>
-      <output class="score" aria-label="Red score">00</output>
+    <section class="side red" aria-label="HOME side">
+      <div class="team-label">HOME</div>
+      <button class="point" type="button" aria-label="Add one point to HOME">+1</button>
+      <button class="subtract" type="button" aria-label="Subtract one point from HOME">−1</button>
+      <output class="score" aria-label="HOME score">00</output>
     </section>
-    <section class="side blue" aria-label="Blue side">
-      <button class="point" type="button" aria-label="Add one point to Blue">+1</button>
-      <button class="subtract" type="button" aria-label="Subtract one point from Blue">−1</button>
-      <output class="score" aria-label="Blue score">00</output>
+    <section class="side blue" aria-label="AWAY side">
+      <div class="team-label">AWAY</div>
+      <button class="point" type="button" aria-label="Add one point to AWAY">+1</button>
+      <button class="subtract" type="button" aria-label="Subtract one point from AWAY">−1</button>
+      <output class="score" aria-label="AWAY score">00</output>
     </section>
   </main>
   <script>
     const scores = [0, 0];
-    const teams = ['Red', 'Blue'];
+    const teams = ['HOME', 'AWAY'];
     const displays = document.querySelectorAll('.score');
     const addButtons = document.querySelectorAll('.point');
     const status = document.querySelector('#status');
