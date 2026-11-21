@@ -33,7 +33,9 @@ The header occupies the upper 20% of the viewport:
 - **Help**, below the set timer, opens a quick functionality synopsis and shows
   the app version (**1.0.0**).
 - **Full screen** is immediately to the left of Help.
-- A **WINNER** label appears above the winning side after the set ends.
+- A **WINNER** label appears above the winning side after the set ends. Its space
+  is reserved throughout the set so announcing or clearing a winner does not
+  shift the controls or score panels.
 
 The score panels share the lower 80% equally:
 
