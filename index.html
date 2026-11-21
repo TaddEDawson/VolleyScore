@@ -61,15 +61,19 @@
       white-space: nowrap;
     }
 
-    #help {
-      display: block;
+    .clock-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.25em;
       margin-top: 0.15em;
-      margin-left: auto;
+      font-size: min(2.3vh, 2.6vw, 1.25rem);
+      line-height: 1.2;
+    }
+
+    .clock-actions button {
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.6em;
-      font-size: min(2.3vh, 3.2vw, 1.25rem);
-      line-height: 1.2;
     }
 
     #help-dialog {
@@ -196,7 +200,10 @@
     <div class="clocks">
       <time id="clock" aria-label="Local time"></time>
       <div>Set <span id="set-duration" role="timer" aria-label="Set duration">0:00</span></div>
-      <button id="help" type="button" aria-haspopup="dialog" aria-controls="help-dialog">Help</button>
+      <div class="clock-actions">
+        <button id="fullscreen" type="button" aria-pressed="false">Full screen</button>
+        <button id="help" type="button" aria-haspopup="dialog" aria-controls="help-dialog">Help</button>
+      </div>
     </div>
     <div id="status" role="status"><span></span><span></span></div>
   </header>
@@ -230,6 +237,8 @@
         Active countdowns cannot restart; expiration shows TIMES UP without sound.</li>
       <li><strong>New set:</strong> Immediately clears scores and both timers.
         During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
+      <li><strong>Full screen:</strong> Expand the scoreboard to fill the screen.
+        Select Exit full screen or press Escape to leave full-screen mode.</li>
       <li><strong>Offline:</strong> No internet is needed. The clock uses local
         device time. Reloading or closing the page loses scores and timers.</li>
     </ul>
@@ -271,6 +280,26 @@
 
     const helpDialog = document.querySelector('#help-dialog');
     document.querySelector('#help').addEventListener('click', () => helpDialog.showModal());
+
+    const fullscreen = document.querySelector('#fullscreen');
+    fullscreen.addEventListener('click', async () => {
+      if (!document.fullscreenEnabled) {
+        alert('Full screen is unavailable in this browser. Use your browser\'s full-screen command instead.');
+        return;
+      }
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
+      } catch (error) {
+        console.error('Unable to change full-screen mode:', error);
+        alert('Unable to change full-screen mode. Use your browser\'s full-screen command instead.');
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const active = document.fullscreenElement !== null;
+      fullscreen.textContent = active ? 'Exit full screen' : 'Full screen';
+      fullscreen.setAttribute('aria-pressed', String(active));
+    });
 
     function renderScore(display, team, score) {
       const text = String(score).padStart(2, '0');

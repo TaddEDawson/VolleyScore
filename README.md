@@ -18,8 +18,10 @@ downloaded fonts, or internet connection is required.
 4. Tap or click the upper half of the side that wins a point.
 5. Use **New set** when you are ready to clear the current set.
 
-The scoreboard works with a touchscreen, mouse, or keyboard. Use the browser's
-own full-screen command if desired; the page has no full-screen button.
+The scoreboard works with a touchscreen, mouse, or keyboard. Select **Full screen**
+to the left of Help to fill the screen. Select **Exit full screen** or press
+**Escape** to leave full-screen mode. If the browser blocks the Fullscreen API,
+the page displays a message; use the browser's own full-screen command instead.
 
 ## Screen layout
 
@@ -30,6 +32,7 @@ The header occupies the upper 20% of the viewport:
 - The **local clock** and **Set** duration are on the right.
 - **Help**, below the set timer, opens a quick functionality synopsis and shows
   the app version (**1.0.0**).
+- **Full screen** is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends.
 
 The score panels share the lower 80% equally:
