@@ -55,10 +55,43 @@
     .clocks {
       grid-area: clocks;
       text-align: right;
-      font-size: min(4.5vh, 3.8vw, 2.25rem);
+      font-size: min(3.2vh, 3.8vw, 2.25rem);
       line-height: 1.15;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+    }
+
+    #help {
+      display: block;
+      margin-top: 0.15em;
+      margin-left: auto;
+      border: 1px solid currentColor;
+      border-radius: 0.35rem;
+      padding: 0.1em 0.6em;
+      font-size: min(2.3vh, 3.2vw, 1.25rem);
+      line-height: 1.2;
+    }
+
+    #help-dialog {
+      width: min(34rem, 92vw);
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow: auto;
+      border: 1px solid #fff;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      background: #101218;
+      color: #fff;
+    }
+
+    #help-dialog::backdrop { background: #000b; }
+    #help-dialog h2 { margin-top: 0; }
+    #help-dialog li { margin-bottom: 0.5rem; }
+
+    #help-dialog button {
+      border: 1px solid currentColor;
+      border-radius: 0.35rem;
+      padding: 0.35em 0.8em;
     }
 
     #status {
@@ -163,6 +196,7 @@
     <div class="clocks">
       <time id="clock" aria-label="Local time"></time>
       <div>Set <span id="set-duration" role="timer" aria-label="Set duration">0:00</span></div>
+      <button id="help" type="button" aria-haspopup="dialog" aria-controls="help-dialog">Help</button>
     </div>
     <div id="status" role="status"><span></span><span></span></div>
   </header>
@@ -180,6 +214,31 @@
       <output class="score" aria-label="AWAY score 00"><svg aria-hidden="true"></svg></output>
     </section>
   </main>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <h2 id="help-title">VolleyScore Help</h2>
+    <p>Version 1.0.0</p>
+    <ul>
+      <li><strong>Score:</strong> Tap the upper half of HOME or AWAY to add a point.
+        Tap the lower half to subtract one. Scores cannot go below 00.</li>
+      <li><strong>Win:</strong> Reach at least 25 points with a two-point lead.
+        After a win, additions stop, but corrections can reopen the set.</li>
+      <li><strong>Set timer:</strong> Starts with the first point, stops at a win,
+        and resumes if a correction removes the win.</li>
+      <li><strong>Countdown:</strong> Tap 2:00 to start a two-minute countdown before
+        minute :58. It also starts automatically at :58 each hour, counting down
+        to the next hour. A countdown already running keeps its end time.
+        Active countdowns cannot restart; expiration shows TIMES UP without sound.</li>
+      <li><strong>New set:</strong> Immediately clears scores and both timers.
+        During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
+      <li><strong>Offline:</strong> No internet is needed. The clock uses local
+        device time. Reloading or closing the page loses scores and timers.</li>
+    </ul>
+    <p>Help does not pause either timer. Use Tab to focus controls and Enter or
+      Space to activate them. Close this popup with Close or Escape.</p>
+    <form method="dialog">
+      <button type="submit" autofocus>Close</button>
+    </form>
+  </dialog>
   <script>
     const scores = [0, 0];
     const teams = ['HOME', 'AWAY'];
@@ -209,6 +268,9 @@
       '05623', '056234', '012', '0123456', '012356'
     ];
     let winner = -1;
+
+    const helpDialog = document.querySelector('#help-dialog');
+    document.querySelector('#help').addEventListener('click', () => helpDialog.showModal());
 
     function renderScore(display, team, score) {
       const text = String(score).padStart(2, '0');

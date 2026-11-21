@@ -28,6 +28,8 @@ The header occupies the upper 20% of the viewport:
 - **New set** is on the left.
 - The **two-minute countdown** is in the center.
 - The **local clock** and **Set** duration are on the right.
+- **Help**, below the set timer, opens a quick functionality synopsis and shows
+  the app version (**1.0.0**).
 - A **WINNER** label appears above the winning side after the set ends.
 
 The score panels share the lower 80% equally:
@@ -41,6 +43,13 @@ Scores start at `00` and use embedded SVG seven-segment digits. Values below ten
 have a leading zero; scores are not capped at two digits, and the graphics resize
 for longer values. The page is designed to fit the browser viewport without
 scrolling.
+
+### In-app help
+
+Select **Help** to open an offline, in-page popup summarizing scoring, winning,
+timers, reset behavior, and data loss on reload. Close it with **Close** or
+**Escape**; keyboard focus returns to the Help button. While the popup is open,
+the scoreboard controls are unavailable, but clocks and timers continue running.
 
 ## Scoring controls
 
@@ -166,6 +175,7 @@ the next hour. Future hourly automatic countdowns still work.
   margin are fixed. There are no configurable team names, 15-point deciding-set
   mode, match-level set totals, history, undo, export, or multi-device syncing.
 - Use a current browser supporting CSS Grid, SVG, and modern JavaScript APIs.
+- The Help popup also requires native HTML dialog support.
   No legacy-browser compatibility layer is included.
 
 ## Functionality check
@@ -183,3 +193,5 @@ To check the page after changes, open [index.html](index.html) directly and veri
 7. **New set** clears both scores, the winner, and both timers.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
+9. **Help** appears below the set timer, opens the synopsis with version `1.0.0`,
+   and closes without changing scores or stopping timers.
