@@ -2,7 +2,7 @@
 
 Open [index.html](index.html) directly in a browser to keep score offline. No
 installation, server, or internet connection is required. The clock shows your
-device's local time.
+device's local time, and scores use a seven-segment display.
 
 - Tap the top half of a side to add a point.
 - Tap the lower half of that side to subtract a point. Scores never go below `00`.
