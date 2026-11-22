@@ -31,9 +31,9 @@ The red and blue panels fill the screen. Controls retain touch targets of at
 least 44 by 44 CSS pixels:
 
 - **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
-  the upper right. The larger **Set** duration control is centered below the
-  timeout buttons; select it to start the set timer.
-- Each side has two **Time Out** buttons above its score.
+  the upper right. The **Set** duration control is above the two-minute countdown
+  at the bottom center, with **SET** above its value; select it to start the timer.
+- Each side has two stopwatch buttons above its score.
 - The **two-minute countdown** is at the bottom center. The device's **local
   date and time** appear in the lower-right corner.
 - The countdown is dimmed while idle and brightens when started manually or
@@ -146,10 +146,12 @@ There is no manual pause button. This timer is independent of the countdown.
 
 ### Team timeouts
 
-Each side can use **Time Out 1** and **Time Out 2** once per set. Selecting one
+Each side can use its two stopwatch buttons once per set. Selecting one
 starts a 30-second countdown on that button. Only one timeout can run at a time,
 and the set timer continues running. Once finished, the used button is greyed
-out until **New set**. Both timeout buttons are restored on reset.
+out and shows the score when the timeout was called, with the calling team's
+score first. For example, a blue timeout at red 10, blue 8 shows `8 - 10`.
+Both timeout icons are restored on **New set**.
 
 ### Two-minute countdown
 
@@ -190,6 +192,13 @@ to the set.
 would be lost. **Cancel** is initially focused. Select **Start new set** to
 confirm, or **Cancel** or **Escape** to keep the current scores and timers.
 Timers keep running while confirmation is open. An unused set resets immediately.
+
+After the set is won, selecting **New set** displays the final score (red first),
+start time, end time, and set duration in the confirmation. Start time is when
+the timer was manually started or the first point awarded; end time is when the
+set was won, not when reset was selected. Reopening a set preserves its original
+start time and records a new end time when it is won again. Cancelling preserves
+the set; confirming clears it. No set history is retained after resetting.
 
 A confirmed reset:
 
@@ -247,4 +256,6 @@ To check the page after changes, open [index.html](index.html) directly and veri
     Winner and countdown-completion status messages provide useful context
     without continuous timer announcements.
 11. Each side can start two timeouts per set; a running timeout blocks the
-    others, counts down for 30 seconds, and becomes unavailable until reset.
+    others, counts down for 30 seconds, then displays its saved score until reset.
+12. After a win, selecting **New set** shows the final score, start and end times,
+    and duration before clearing the set.

@@ -92,14 +92,16 @@
     }
 
     .set-clock {
-      position: absolute;
-      top: 108px;
+      position: fixed;
+      bottom: 56px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 0.2em;
-      height: 56px;
+      height: 96px;
       max-width: calc(50vw - 3rem);
       padding: 0 0.25rem;
       border: 1px solid currentColor;
@@ -111,6 +113,8 @@
       white-space: nowrap;
       pointer-events: auto;
     }
+
+    .set-label { font-size: 0.5em; }
 
     .clock-actions {
       display: flex;
@@ -140,6 +144,8 @@
 
     dialog::backdrop { background: #000b; }
     dialog h2 { margin-top: 0; }
+    #set-summary dt { font-weight: bold; }
+    #set-summary dd { margin: 0 0 0.75rem; }
     #help-dialog li { margin-bottom: 0.5rem; }
 
     dialog button {
@@ -252,6 +258,17 @@
 
     .timeout[data-state="blocked"] { border-style: dashed; }
 
+    .timeout svg {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     button {
       border: 0;
       background: none;
@@ -330,7 +347,7 @@
     <button id="countdown" type="button" aria-label="Start countdown: 2:00"
       aria-describedby="countdown-note" data-state="idle">2:00</button>
     <button class="set-clock" type="button" aria-label="Start set timer" title="Start set timer">
-      <span>Set</span><span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
+      <span class="set-label">SET</span><span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
     </button>
     <time id="clock" aria-label="Local date and time"></time>
     <span id="countdown-note" class="sr-only">Two-minute countdown. Automatic start at :58.</span>
@@ -347,8 +364,8 @@
       <button class="point" type="button" aria-label="Add one point to red"></button>
       <button class="subtract" type="button" aria-label="Subtract one point from red"></button>
       <div class="timeouts" role="group" aria-label="Red timeouts">
-        <button class="timeout" type="button">Time Out 1</button>
-        <button class="timeout" type="button">Time Out 2</button>
+        <button class="timeout" type="button" aria-label="Red timeout 1"></button>
+        <button class="timeout" type="button" aria-label="Red timeout 2"></button>
       </div>
       <output class="score" aria-label="Red score 00"><svg aria-hidden="true" preserveAspectRatio="xMidYMin meet"></svg></output>
     </section>
@@ -356,12 +373,18 @@
       <button class="point" type="button" aria-label="Add one point to blue"></button>
       <button class="subtract" type="button" aria-label="Subtract one point from blue"></button>
       <div class="timeouts" role="group" aria-label="Blue timeouts">
-        <button class="timeout" type="button">Time Out 1</button>
-        <button class="timeout" type="button">Time Out 2</button>
+        <button class="timeout" type="button" aria-label="Blue timeout 1"></button>
+        <button class="timeout" type="button" aria-label="Blue timeout 2"></button>
       </div>
       <output class="score" aria-label="Blue score 00"><svg aria-hidden="true" preserveAspectRatio="xMidYMin meet"></svg></output>
     </section>
   </main>
+  <template id="timeout-icon">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="14" r="8"/>
+      <path d="M9 2h6M12 2v4M18 6l2-2M12 10v4l3 2"/>
+    </svg>
+  </template>
   <dialog id="help-dialog" aria-labelledby="help-title">
     <div class="dialog-header">
       <h2 id="help-title" tabindex="-1" autofocus>VolleyScore Help</h2>
@@ -378,7 +401,8 @@
         and resumes if a correction removes the win.</li>
       <li><strong>Timeouts:</strong> Each team has two 30-second timeouts per set.
         Only one timeout can run at a time; the set timer keeps running.
-        Used timeouts are greyed out until a new set.</li>
+        Select a stopwatch icon to start. Completed timeouts show the score
+        when called, with the calling team's score first, and stay greyed out until a new set.</li>
       <li><strong>Countdown:</strong> Tap 2:00 to start a two-minute countdown before
         minute :58. It also starts automatically at :58 each hour, counting down
         to the next hour. A countdown already running keeps its end time.
@@ -386,6 +410,7 @@
         Active countdowns cannot restart; expiration shows TIMES UP without sound.</li>
       <li><strong>New set (circular arrows):</strong> Asks for confirmation before clearing scores
         or timers already in use. Cancel keeps the current set.
+        After a win, the confirmation shows the final score and set timing details.
         During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
       <li><strong>Full screen (diagonal arrows):</strong> Expand the scoreboard to fill the screen.
         Select the icon again or press Escape to leave full-screen mode.</li>
@@ -397,6 +422,12 @@
   </dialog>
   <dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-message">
     <h2 id="reset-title">Start a new set?</h2>
+    <dl id="set-summary" hidden>
+      <dt>Final Score (Red - Blue)</dt><dd id="final-score"></dd>
+      <dt>Start Time</dt><dd id="set-start-time"></dd>
+      <dt>End Time</dt><dd id="set-end-time"></dd>
+      <dt>Set Duration</dt><dd id="final-duration"></dd>
+    </dl>
     <p id="reset-message">This clears both scores, all timers, and used timeouts. This cannot be undone.</p>
     <form method="dialog">
       <button type="submit" value="cancel" autofocus>Cancel</button>
@@ -417,7 +448,9 @@
     const countdownAnnouncement = document.querySelector('#countdown-announcement');
     const timeoutAnnouncement = document.querySelector('#timeout-announcement');
     const timeoutButtons = document.querySelectorAll('.timeout');
+    const timeoutIcon = document.querySelector('#timeout-icon');
     const timeoutUsed = [false, false, false, false];
+    const timeoutScores = [null, null, null, null];
     let activeTimeout = null;
     const setDuration = document.querySelector('#set-duration');
     const setClock = document.querySelector('.set-clock');
@@ -427,6 +460,8 @@
     let lastAutomaticEnd = 0;
     let setRunningSince = null;
     let setElapsed = 0;
+    let setStartedAt = null;
+    let setEndedAt = null;
     const segments = [
       '11,2 49,2 54,7 49,12 11,12 6,7',
       '56,9 60,14 60,41 56,46 51,41 51,14',
@@ -505,13 +540,19 @@
         const blocked = activeTimeout !== null || timeoutUsed[index];
         const state = active ? 'running' : timeoutUsed[index] ? 'used' : blocked ? 'blocked' : 'available';
         const name = `Time Out ${index % 2 + 1}`;
-        const text = active ? `${name} ${formatDuration(Math.ceil((activeTimeout.endsAt - now) / 1000))}` : name;
-        const detail = active ? `running, ${text}` : timeoutUsed[index] ? `${name} used`
+        const text = active ? formatDuration(Math.ceil((activeTimeout.endsAt - now) / 1000))
+          : timeoutUsed[index] ? timeoutScores[index].join(' - ') : null;
+        const detail = active ? `${name} running, ${text}` : timeoutUsed[index] ? `${name} used, score ${text}, calling team first`
           : blocked ? `${name} unavailable while a timeout is running` : name;
-        button.textContent = text;
+        if (text !== null) {
+          if (button.textContent !== text) button.textContent = text;
+        } else if (!button.querySelector('svg')) {
+          button.replaceChildren(timeoutIcon.content.cloneNode(true));
+        }
         button.dataset.state = state;
         button.setAttribute('aria-disabled', String(blocked));
         button.setAttribute('aria-label', `${teams[Math.floor(index / 2)]} ${detail}`);
+        button.title = `${teams[Math.floor(index / 2)]} ${detail}`;
       });
     }
 
@@ -520,6 +561,8 @@
         const now = performance.now();
         updateTimeouts(now);
         if (activeTimeout !== null || timeoutUsed[index]) return;
+        const team = Math.floor(index / 2);
+        timeoutScores[index] = [scores[team], scores[1 - team]];
         activeTimeout = { index, endsAt: now + 30_000 };
         timeoutAnnouncement.textContent = `${teams[Math.floor(index / 2)]} time out ${index % 2 + 1} started.`;
         updateTimeouts(now);
@@ -539,10 +582,16 @@
 
     setClock.addEventListener('click', () => {
       if (winner !== -1 || setRunningSince !== null) return;
-      setRunningSince = performance.now();
+      startSetTimer(performance.now());
       updateSetDuration(setRunningSince);
       fitSetClock();
     });
+
+    function startSetTimer(now) {
+      if (setRunningSince !== null) return;
+      if (setStartedAt === null) setStartedAt = new Date();
+      setRunningSince = now;
+    }
 
     function currentHourEnd(now) {
       return now.getTime() + (60 - now.getMinutes()) * 60_000
@@ -585,6 +634,8 @@
     function render(now = performance.now()) {
       const previousWinner = winner;
       winner = scores.findIndex((score, side) => score >= 25 && score - scores[1 - side] >= 2);
+      if (winner !== -1 && previousWinner === -1) setEndedAt = new Date();
+      else if (winner === -1) setEndedAt = null;
       if (winner !== -1 && setRunningSince !== null) {
         setElapsed += now - setRunningSince;
         setRunningSince = null;
@@ -610,7 +661,7 @@
       button.addEventListener('click', () => {
         if (winner !== -1) return;
         const now = performance.now();
-        if (setRunningSince === null) setRunningSince = now;
+        startSetTimer(now);
         scores[side]++;
         render(now);
       });
@@ -629,9 +680,14 @@
       winner = -1;
       setRunningSince = null;
       setElapsed = 0;
+      setStartedAt = null;
+      setEndedAt = null;
+      document.querySelector('#set-summary').hidden = true;
+      document.querySelectorAll('#set-summary dd').forEach(field => { field.textContent = ''; });
       countdownEndsAt = 0;
       activeTimeout = null;
       timeoutUsed.fill(false);
+      timeoutScores.fill(null);
       timeoutAnnouncement.textContent = '';
       updateTimeouts(performance.now());
       const now = new Date();
@@ -647,6 +703,14 @@
         || setElapsed > 0 || countdownEndsAt !== 0 || activeTimeout !== null
         || timeoutUsed.some(Boolean)) {
         resetDialog.returnValue = 'cancel';
+        const summary = document.querySelector('#set-summary');
+        summary.hidden = winner === -1;
+        if (winner !== -1) {
+          document.querySelector('#final-score').textContent = scores.join(' - ');
+          document.querySelector('#set-start-time').textContent = timeFormat.format(setStartedAt);
+          document.querySelector('#set-end-time').textContent = timeFormat.format(setEndedAt);
+          document.querySelector('#final-duration').textContent = formatDuration(Math.floor(setElapsed / 1000));
+        }
         resetDialog.showModal();
       } else {
         resetSet();
