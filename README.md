@@ -30,9 +30,10 @@ the page displays a message; use the browser's own full-screen command instead.
 The red and blue panels fill the screen. Controls retain touch targets of at
 least 44 by 44 CSS pixels:
 
-- **New set** (circular refresh arrows), **Set** duration, **Full screen**, and
-  **Help** appear at the upper left.
-- The **two-minute countdown** is centered on the screen. The device's **local
+- **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
+  the upper right. **Set** duration is at the top center.
+- Each side has two **Time Out** buttons above its score.
+- The **two-minute countdown** is at the bottom center. The device's **local
   date and time** appear in the lower-right corner.
 - The countdown is dimmed while idle and brightens when started manually or
   automatically at `:58`. It stays bright when it displays **TIMES UP**.
@@ -42,7 +43,7 @@ least 44 by 44 CSS pixels:
   the app version (**1.0.0**).
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
-  is reserved below the toolbar so announcing or clearing a winner does not
+  is reserved below the timeout buttons so announcing or clearing a winner does not
   shift the controls or score panels.
 
 The score panels split the screen equally:
@@ -55,7 +56,7 @@ The score panels split the screen equally:
 Scores start at `00` and use embedded SVG seven-segment digits. Values below ten
 have a leading zero; scores are not capped at two digits, and the graphics resize
 for longer values. Each score has at least a 5% margin on both sides of its
-panel, with additional space beside the centered countdown as needed. The page
+panel. The page
 is designed to fit the browser viewport without scrolling.
 
 ### In-app help
@@ -71,8 +72,8 @@ visible first. Its Close button stays at the top while the content scrolls.
 
 | Action | Control | Result |
 | --- | --- | --- |
-| Add a point | Upper half of the red or blue panel, marked `+` | Adds one point to that side |
-| Correct a point | Lower half of the red or blue panel, marked minus | Subtracts one point from that side |
+| Add a point | Upper half of the red or blue panel | Adds one point to that side |
+| Correct a point | Lower half of the red or blue panel | Subtracts one point from that side |
 | Start another set | **New set** | Asks for confirmation when scores or timers are in use, then clears them |
 
 The touch targets cover the panel halves, not just the visible symbols or digits,
@@ -85,8 +86,8 @@ action or current score.
 Icon-only buttons retain descriptive accessible names and hover tooltips. The
 full-screen icon is highlighted while active and its name changes to
 **Exit full screen**.
-Unavailable controls have a contrasting background and dashed border. Subtraction
-is unavailable at zero; additions become unavailable after a win.
+Unavailable score controls have a contrasting background. Subtraction is
+unavailable at zero; additions become unavailable after a win.
 
 ## Winning a set and correcting scores
 
@@ -139,9 +140,16 @@ The **Set** timer displays elapsed time as `minutes:seconds`.
 
 There is no manual pause button. This timer is independent of the countdown.
 
+### Team timeouts
+
+Each side can use **Time Out 1** and **Time Out 2** once per set. Selecting one
+starts a 30-second countdown on that button. Only one timeout can run at a time,
+and the set timer continues running. Once finished, the used button is greyed
+out until **New set**. Both timeout buttons are restored on reset.
+
 ### Two-minute countdown
 
-The center button initially displays `2:00`.
+The bottom-center button initially displays `2:00`.
 It is dimmed until a manual or automatic countdown starts. Resetting restores
 the dimmed idle state; dimming does not prevent an otherwise available manual
 start.
@@ -174,7 +182,7 @@ to the set.
 
 ## Reset behavior
 
-**New set** asks for confirmation if scores, set duration, or countdown state
+**New set** asks for confirmation if scores, set duration, countdown, or timeout state
 would be lost. **Cancel** is initially focused. Select **Start new set** to
 confirm, or **Cancel** or **Escape** to keep the current scores and timers.
 Timers keep running while confirmation is open. An unused set resets immediately.
@@ -185,6 +193,7 @@ A confirmed reset:
 - Clears the winner labels and unlocks scoring.
 - Clears and stops the set-duration timer.
 - Cancels the countdown and restores its display to `2:00`.
+- Cancels any active timeout and restores both teams' timeout buttons.
 
 If the reset is completed during minutes `:58` or `:59`, that hour's automatic countdown is
 suppressed. The countdown stays at `2:00` but cannot be started manually until
@@ -224,11 +233,13 @@ To check the page after changes, open [index.html](index.html) directly and veri
 6. The automatic countdown follows the local `:58` window and respects an
    already-running manual countdown.
 7. Cancelling **New set** preserves the current scores and timers; confirming
-   clears both scores, the winner, and both timers.
+   clears both scores, the winner, all timers, and used timeouts.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
-9. **Help** appears alongside the set timer, opens the synopsis with version `1.0.0`,
+9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.0`,
    starts at the top, and closes without changing scores or stopping timers.
 10. Header controls retain readable text and 44-pixel minimum touch targets.
     Winner and countdown-completion status messages provide useful context
     without continuous timer announcements.
+11. Each side can start two timeouts per set; a running timeout blocks the
+    others, counts down for 30 seconds, and becomes unavailable until reset.
