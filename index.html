@@ -93,20 +93,23 @@
 
     .set-clock {
       position: absolute;
-      top: 0.25rem;
+      top: 108px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;
       gap: 0.2em;
-      height: 44px;
-      max-width: max(0px, calc(100vw - 280px));
+      height: 56px;
+      max-width: calc(50vw - 3rem);
       padding: 0 0.25rem;
+      border: 1px solid currentColor;
+      border-radius: 0.35rem;
       background: #101218d9;
-      font-size: clamp(0.55rem, 2vw, 1.25rem);
+      font-size: clamp(1.1rem, 4vw, 2.5rem);
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      pointer-events: auto;
     }
 
     .clock-actions {
@@ -180,11 +183,13 @@
 
     #status {
       position: absolute;
-      top: 96px;
+      top: 108px;
       left: 0;
       right: 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+      height: 56px;
       text-align: center;
       font-weight: bold;
       font-size: clamp(0.75rem, 3vw, 1.25rem);
@@ -209,7 +214,7 @@
 
     .score {
       position: absolute;
-      inset: 116px 5% 44px;
+      inset: 172px 5% 52px;
       display: grid;
       place-items: center;
       pointer-events: none;
@@ -220,7 +225,7 @@
     .timeouts {
       position: absolute;
       z-index: 1;
-      top: 50px;
+      top: 56px;
       left: 5%;
       right: 5%;
       display: flex;
@@ -324,9 +329,9 @@
     </div>
     <button id="countdown" type="button" aria-label="Start countdown: 2:00"
       aria-describedby="countdown-note" data-state="idle">2:00</button>
-    <div class="set-clock">
+    <button class="set-clock" type="button" aria-label="Start set timer" title="Start set timer">
       <span>Set</span><span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
-    </div>
+    </button>
     <time id="clock" aria-label="Local date and time"></time>
     <span id="countdown-note" class="sr-only">Two-minute countdown. Automatic start at :58.</span>
     <div id="status" role="status" aria-atomic="true">
@@ -345,7 +350,7 @@
         <button class="timeout" type="button">Time Out 1</button>
         <button class="timeout" type="button">Time Out 2</button>
       </div>
-      <output class="score" aria-label="Red score 00"><svg aria-hidden="true"></svg></output>
+      <output class="score" aria-label="Red score 00"><svg aria-hidden="true" preserveAspectRatio="xMidYMin meet"></svg></output>
     </section>
     <section class="side blue" aria-label="Blue side">
       <button class="point" type="button" aria-label="Add one point to blue"></button>
@@ -354,7 +359,7 @@
         <button class="timeout" type="button">Time Out 1</button>
         <button class="timeout" type="button">Time Out 2</button>
       </div>
-      <output class="score" aria-label="Blue score 00"><svg aria-hidden="true"></svg></output>
+      <output class="score" aria-label="Blue score 00"><svg aria-hidden="true" preserveAspectRatio="xMidYMin meet"></svg></output>
     </section>
   </main>
   <dialog id="help-dialog" aria-labelledby="help-title">
@@ -368,7 +373,8 @@
         Tap the lower half to subtract one. Scores cannot go below 00.</li>
       <li><strong>Win:</strong> Reach at least 25 points with a two-point lead.
         After a win, additions stop, but corrections can reopen the set.</li>
-      <li><strong>Set timer:</strong> Starts with the first point, stops at a win,
+      <li><strong>Set timer:</strong> Tap the set timer to start it, or award the first point.
+        It stops at a win,
         and resumes if a correction removes the win.</li>
       <li><strong>Timeouts:</strong> Each team has two 30-second timeouts per set.
         Only one timeout can run at a time; the set timer keeps running.
@@ -524,7 +530,19 @@
       const elapsed = setElapsed + (setRunningSince === null ? 0 : now - setRunningSince);
       const text = formatDuration(Math.floor(elapsed / 1000));
       if (setDuration.textContent !== text) setDuration.textContent = text;
+      const canStart = winner === -1 && setRunningSince === null;
+      const label = canStart ? 'Start set timer' : winner === -1 ? 'Set timer running' : 'Set timer stopped: set finished';
+      setClock.setAttribute('aria-disabled', String(!canStart));
+      setClock.setAttribute('aria-label', label);
+      setClock.title = label;
     }
+
+    setClock.addEventListener('click', () => {
+      if (winner !== -1 || setRunningSince !== null) return;
+      setRunningSince = performance.now();
+      updateSetDuration(setRunningSince);
+      fitSetClock();
+    });
 
     function currentHourEnd(now) {
       return now.getTime() + (60 - now.getMinutes()) * 60_000

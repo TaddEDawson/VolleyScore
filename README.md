@@ -31,7 +31,8 @@ The red and blue panels fill the screen. Controls retain touch targets of at
 least 44 by 44 CSS pixels:
 
 - **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
-  the upper right. **Set** duration is at the top center.
+  the upper right. The larger **Set** duration control is centered below the
+  timeout buttons; select it to start the set timer.
 - Each side has two **Time Out** buttons above its score.
 - The **two-minute countdown** is at the bottom center. The device's **local
   date and time** appear in the lower-right corner.
@@ -43,8 +44,9 @@ least 44 by 44 CSS pixels:
   the app version (**1.0.0**).
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
-  is reserved below the timeout buttons so announcing or clearing a winner does not
-  shift the controls or score panels.
+  is centered vertically between the timeout buttons and the score, and
+  horizontally above that side's score. Spacing is reserved so announcing or
+  clearing a winner does not shift the controls or score panels.
 
 The score panels split the screen equally:
 
@@ -130,13 +132,15 @@ an internet time service.
 
 The **Set** timer displays elapsed time as `minutes:seconds`.
 
-- It starts at `0:00` and begins running when the first point is added.
+- It starts at `0:00` and begins running when the first point is added or the
+  set timer is selected. Selecting it while running does not restart it.
 - It keeps running during ordinary score corrections, even if both scores
   return to zero.
 - It stops when a side wins.
 - If a correction reopens the set, it resumes from the accumulated duration;
   time spent in the finished state is not included.
-- **New set** clears it to `0:00` and leaves it stopped until the next point.
+- **New set** clears it to `0:00` and leaves it stopped until the next point or
+  manual start.
 
 There is no manual pause button. This timer is independent of the countdown.
 
@@ -225,7 +229,8 @@ the next hour. Future hourly automatic countdowns still work.
 To check the page after changes, open [index.html](index.html) directly and verify:
 
 1. Both scores start at `00`; subtracting at zero does nothing.
-2. Adding the first point starts the set timer.
+2. Adding the first point or selecting the set timer starts it; selecting a
+   running timer does not restart it.
 3. `25-24` remains playable; `26-24` declares a winner and blocks additions.
 4. Subtracting from `26-24` to `25-24` reopens scoring and resumes the set timer.
 5. A manual countdown starts at `2:00`, cannot restart while active, and ends
