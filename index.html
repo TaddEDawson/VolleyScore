@@ -8,6 +8,8 @@
     * { box-sizing: border-box; }
 
     body {
+      --countdown-font: clamp(0.65rem, 2.4vw, 1.25rem);
+      --countdown-width: max(44px, calc(var(--countdown-font) * 5.75));
       height: 100vh;
       height: 100dvh;
       margin: 0;
@@ -30,9 +32,11 @@
     .toolbar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 0.125rem;
       min-width: 0;
+      width: max-content;
+      max-width: 100%;
       background: #101218d9;
       pointer-events: auto;
     }
@@ -43,37 +47,48 @@
     }
 
     #countdown {
-      flex-shrink: 0;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: var(--countdown-width);
       height: 44px;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.25em;
-      font-size: clamp(0.65rem, 2.4vw, 1.25rem);
+      background: #101218f0;
+      font-size: var(--countdown-font);
       font-weight: bold;
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
       white-space: nowrap;
+      pointer-events: auto;
     }
 
     #countdown[aria-disabled="true"] {
       border-style: dashed;
-      background: #ffffff1a;
+      background: #29303a;
     }
 
     #countdown[data-state="idle"] {
       color: #9fa3ad;
       border-color: #697080;
-      background: none;
+      background: #101218f0;
     }
 
     #clock {
-      flex: 1 1 0;
-      min-width: 0;
+      position: fixed;
+      right: 0.25rem;
+      bottom: 0.25rem;
+      max-width: calc(50vw - 3rem);
+      padding: 0.25rem;
+      background: #101218e8;
       text-align: right;
       font-size: clamp(0.5rem, 2.4vw, 1.125rem);
       line-height: 1.15;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
+      pointer-events: none;
     }
 
     .set-clock {
@@ -183,13 +198,16 @@
 
     .score {
       position: absolute;
-      inset: 116px 0 44px;
+      inset: 116px 5% 44px;
       display: grid;
       place-items: center;
       pointer-events: none;
     }
 
     .score svg { width: 100%; height: 100%; fill: currentColor; }
+
+    .red .score { right: max(5%, calc(var(--countdown-width) / 2 + 4px)); }
+    .blue .score { left: max(5%, calc(var(--countdown-width) / 2 + 4px)); }
 
     button {
       border: 0;
@@ -259,9 +277,9 @@
     .subtract {
       grid-column: span 2;
       display: grid;
-      justify-items: center;
+      justify-items: start;
       align-items: end;
-      padding: 0 0 2px;
+      padding: 0 0 2px 0.5rem;
       font-size: clamp(1rem, 4vh, 2rem);
       line-height: 1.2;
     }
