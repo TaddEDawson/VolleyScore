@@ -1,7 +1,7 @@
 # VolleyScore
 
 An offline, single-page volleyball scoreboard for one set at a time. It displays
-HOME and AWAY scores, identifies the winning side, measures set duration, and
+red and blue scores, identifies the winning side, measures set duration, and
 provides a separate two-minute countdown.
 
 All HTML, styling, JavaScript, and seven-segment score graphics are embedded in
@@ -27,13 +27,12 @@ the page displays a message; use the browser's own full-screen command instead.
 
 ## Screen layout
 
-The compact header uses only the space needed for the local date/time, a single
-toolbar row, and the reserved winner labels. Controls retain touch targets of at
-least 44 by 44 CSS pixels:
+The red and blue panels fill the screen. A compact toolbar overlays their top
+edge, with controls retaining touch targets of at least 44 by 44 CSS pixels:
 
 - The device's **local date and time** appear in the upper-right corner.
 - **New set** (circular refresh arrows), the **two-minute countdown**, **Set**
-  duration, **Full screen**, and **Help** share one row and are vertically centered.
+  duration, **Full screen**, **Help**, and the local date and time share one row.
 - The countdown is dimmed while idle and brightens when started manually or
   automatically at `:58`. It stays bright when it displays **TIMES UP**.
 - Countdown guidance is available through its tooltip and accessible description
@@ -42,15 +41,15 @@ least 44 by 44 CSS pixels:
   the app version (**1.0.0**).
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
-  is reserved throughout the set so announcing or clearing a winner does not
+  is reserved below the toolbar so announcing or clearing a winner does not
   shift the controls or score panels.
 
-The score panels split all the remaining space equally:
+The score panels split the screen equally:
 
-| Side | Label | Appearance |
-| --- | --- | --- |
-| Left | HOME | White score on a red background |
-| Right | AWAY | White score on a dark blue background |
+| Side | Appearance |
+| --- | --- |
+| Left | White score on a red background |
+| Right | White score on a dark blue background |
 
 Scores start at `00` and use embedded SVG seven-segment digits. Values below ten
 have a leading zero; scores are not capped at two digits, and the graphics resize
@@ -70,8 +69,8 @@ visible first. Its Close button stays at the top while the content scrolls.
 
 | Action | Control | Result |
 | --- | --- | --- |
-| Add a point | Upper half of the HOME or AWAY panel, marked `+` | Adds one point to that side |
-| Correct a point | Lower half of the HOME or AWAY panel, marked minus | Subtracts one point from that side |
+| Add a point | Upper half of the red or blue panel, marked `+` | Adds one point to that side |
+| Correct a point | Lower half of the red or blue panel, marked minus | Subtracts one point from that side |
 | Start another set | **New set** | Asks for confirmation when scores or timers are in use, then clears them |
 
 The touch targets cover the panel halves, not just the visible symbols or digits.
@@ -97,19 +96,19 @@ A side wins when both conditions are true:
 
 Examples:
 
-| Score (HOME-AWAY) | Result |
+| Score (red-blue) | Result |
 | --- | --- |
-| `25-23` | HOME wins |
+| `25-23` | Red wins |
 | `25-24` | Play continues |
 | `25-25` | Play continues |
-| `26-24` | HOME wins |
+| `26-24` | Red wins |
 | `26-25` | Play continues |
-| `25-27` | AWAY wins |
+| `25-27` | Blue wins |
 
 After a win, both add-point controls stop accepting points and the winning side
 shows **WINNER**. Subtraction remains available on either side so mistakes can
 be corrected, provided that side's score is above zero. A screen-reader status
-message names the winning team, such as "HOME wins the set." Reopening the set
+message names the winning side, such as "Red wins the set." Reopening the set
 announces that play continues.
 
 The winner is recalculated after every correction. For example, changing
@@ -181,7 +180,7 @@ Timers keep running while confirmation is open. An unused set resets immediately
 
 A confirmed reset:
 
-- Restores HOME and AWAY to `00`.
+- Restores red and blue scores to `00`.
 - Clears the winner labels and unlocks scoring.
 - Clears and stops the set-duration timer.
 - Cancels the countdown and restores its display to `2:00`.
@@ -203,10 +202,10 @@ the next hour. Future hourly automatic countdowns still work.
 - The countdown uses the device's wall clock, so changing that clock can affect
   countdown timing. Set duration uses the browser's monotonic performance
   clock.
-- HOME and AWAY labels, colors, the 25-point target, and the two-point winning
+- Panel colors, the 25-point target, and the two-point winning
   margin are fixed. There are no configurable team names, 15-point deciding-set
   mode, match-level set totals, history, undo, export, or multi-device syncing.
-- Use a current browser supporting CSS Grid, container query units, SVG, and
+- Use a current browser supporting CSS Grid, SVG, and
   modern JavaScript APIs. Help and reset confirmation require native HTML dialog
   support.
   No legacy-browser compatibility layer is included.
