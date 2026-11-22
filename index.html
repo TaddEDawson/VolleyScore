@@ -8,8 +8,6 @@
     * { box-sizing: border-box; }
 
     body {
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
       height: 100vh;
       height: 100dvh;
       margin: 0;
@@ -20,20 +18,23 @@
     }
 
     header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 2;
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "clock" "toolbar" "status";
-      align-items: center;
-      gap: 0.25rem;
+      grid-template-rows: 44px 20px;
       padding: 0.25rem;
+      pointer-events: none;
     }
 
     .toolbar {
-      grid-area: toolbar;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.125rem;
+      min-width: 0;
+      background: #101218d9;
+      pointer-events: auto;
     }
 
     #reset {
@@ -43,15 +44,15 @@
 
     #countdown {
       flex-shrink: 0;
-      width: 3.5em;
-      height: 2.75em;
+      height: 44px;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.25em;
-      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-size: clamp(0.65rem, 2.4vw, 1.25rem);
       font-weight: bold;
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
+      white-space: nowrap;
     }
 
     #countdown[aria-disabled="true"] {
@@ -66,22 +67,23 @@
     }
 
     #clock {
-      grid-area: clock;
-      justify-self: end;
+      flex: 1 1 0;
+      min-width: 0;
       text-align: right;
-      font-size: clamp(1rem, min(3.2vh, 3.8vw), 1.5rem);
+      font-size: clamp(0.5rem, 2.4vw, 1.125rem);
       line-height: 1.15;
-      overflow-wrap: anywhere;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
 
     .set-clock {
-      display: grid;
+      display: flex;
       flex-shrink: 0;
-      width: 3em;
-      justify-items: center;
-      font-size: clamp(1rem, 2.4vw, 1.5rem);
+      gap: 0.2em;
+      font-size: clamp(0.65rem, 2.4vw, 1.25rem);
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
     .clock-actions {
@@ -154,46 +156,26 @@
     }
 
     #status {
-      grid-area: status;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      min-height: 1em;
       margin-inline: -0.25rem;
       text-align: center;
       font-weight: bold;
-      font-size: clamp(1rem, min(4.5vh, 4vw), 2.25rem);
-      line-height: 1;
+      font-size: clamp(0.75rem, 3vw, 1.25rem);
+      line-height: 20px;
     }
 
     main {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      min-height: 0;
-      container-type: size;
+      height: 100%;
     }
 
     .side {
-      --score-size: min(37.5vw, 42cqh);
-      --score-width: 1.28;
-      --label-size: calc(var(--score-size) / 4);
       position: relative;
       display: grid;
       grid-template: repeat(2, minmax(0, 1fr)) / repeat(2, minmax(0, 1fr));
       overflow: hidden;
-    }
-
-    .team-label {
-      position: absolute;
-      z-index: 1;
-      top: calc(50% - var(--score-size) * 0.5 - var(--label-size) * 2.6);
-      left: 0;
-      right: 0;
-      text-align: center;
-      pointer-events: none;
-      font-weight: bold;
-      font-size: var(--label-size);
-      line-height: 1.2;
-      letter-spacing: 0.12em;
     }
 
     .red { background: #b00020; }
@@ -201,11 +183,7 @@
 
     .score {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: calc(var(--score-size) * var(--score-width));
-      height: var(--score-size);
-      transform: translate(-50%, -50%);
+      inset: 116px 0 44px;
       display: grid;
       place-items: center;
       pointer-events: none;
@@ -259,9 +237,9 @@
       grid-column: span 2;
       display: grid;
       justify-items: center;
-      align-items: end;
-      padding: 0 0 calc(var(--score-size) * 0.5 + var(--label-size) * 0.1);
-      font-size: var(--label-size);
+      align-items: start;
+      padding: 72px 0 0;
+      font-size: clamp(1rem, 4vh, 2rem);
       line-height: 1.2;
     }
 
@@ -282,9 +260,9 @@
       grid-column: span 2;
       display: grid;
       justify-items: center;
-      align-items: start;
-      padding: calc(var(--score-size) * 0.5 + var(--label-size) * 0.1) 0 0;
-      font-size: var(--label-size);
+      align-items: end;
+      padding: 0 0 2px;
+      font-size: clamp(1rem, 4vh, 2rem);
       line-height: 1.2;
     }
 
@@ -292,7 +270,6 @@
 </head>
 <body>
   <header>
-    <time id="clock" aria-label="Local date and time"></time>
     <div class="toolbar">
     <button id="reset" class="icon-button" type="button" aria-label="New set" title="New set">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -320,6 +297,7 @@
         </svg>
       </button>
     </div>
+    <time id="clock" aria-label="Local date and time"></time>
     </div>
     <span id="countdown-note" class="sr-only">Two-minute countdown. Automatic start at :58.</span>
     <div id="status" role="status" aria-atomic="true">
@@ -330,17 +308,15 @@
   </header>
   <div id="countdown-announcement" class="sr-only" role="status" aria-atomic="true"></div>
   <main aria-label="Volleyball scoreboard">
-    <section class="side red" aria-label="HOME side">
-      <div class="team-label">HOME</div>
-      <button class="point" type="button" aria-label="Add one point to HOME"><span aria-hidden="true">+</span></button>
-      <button class="subtract" type="button" aria-label="Subtract one point from HOME"><span aria-hidden="true">−</span></button>
-      <output class="score" aria-label="HOME score 00"><svg aria-hidden="true"></svg></output>
+    <section class="side red" aria-label="Red side">
+      <button class="point" type="button" aria-label="Add one point to red"><span aria-hidden="true">+</span></button>
+      <button class="subtract" type="button" aria-label="Subtract one point from red"><span aria-hidden="true">−</span></button>
+      <output class="score" aria-label="Red score 00"><svg aria-hidden="true"></svg></output>
     </section>
-    <section class="side blue" aria-label="AWAY side">
-      <div class="team-label">AWAY</div>
-      <button class="point" type="button" aria-label="Add one point to AWAY"><span aria-hidden="true">+</span></button>
-      <button class="subtract" type="button" aria-label="Subtract one point from AWAY"><span aria-hidden="true">−</span></button>
-      <output class="score" aria-label="AWAY score 00"><svg aria-hidden="true"></svg></output>
+    <section class="side blue" aria-label="Blue side">
+      <button class="point" type="button" aria-label="Add one point to blue"><span aria-hidden="true">+</span></button>
+      <button class="subtract" type="button" aria-label="Subtract one point from blue"><span aria-hidden="true">−</span></button>
+      <output class="score" aria-label="Blue score 00"><svg aria-hidden="true"></svg></output>
     </section>
   </main>
   <dialog id="help-dialog" aria-labelledby="help-title">
@@ -350,7 +326,7 @@
     </div>
     <p>Version 1.0.0</p>
     <ul>
-      <li><strong>Score:</strong> Tap the upper half of HOME or AWAY to add a point.
+      <li><strong>Score:</strong> Tap the upper half of the red or blue side to add a point.
         Tap the lower half to subtract one. Scores cannot go below 00.</li>
       <li><strong>Win:</strong> Reach at least 25 points with a two-point lead.
         After a win, additions stop, but corrections can reopen the set.</li>
@@ -382,7 +358,7 @@
   </dialog>
   <script>
     const scores = [0, 0];
-    const teams = ['HOME', 'AWAY'];
+    const teams = ['Red', 'Blue'];
     const displays = document.querySelectorAll('.score');
     const addButtons = document.querySelectorAll('.point');
     const subtractButtons = document.querySelectorAll('.subtract');
@@ -459,8 +435,6 @@
       svg.setAttribute('viewBox', `0 0 ${width} 100`);
       svg.replaceChildren(...shapes);
       display.setAttribute('aria-label', `${team} score ${text}`);
-      display.parentElement.style.setProperty('--score-size', `min(calc(4800vw / ${width}), 42cqh)`);
-      display.parentElement.style.setProperty('--score-width', width / 100);
     }
 
     function formatDuration(seconds) {
@@ -589,6 +563,18 @@
     });
 
     const timeFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'medium' });
+    let clockFitKey = '';
+    function fitClock() {
+      const key = `${clock.clientWidth}:${clock.textContent}`;
+      if (key === clockFitKey) return;
+      clockFitKey = key;
+      clock.style.fontSize = '';
+      const size = parseFloat(getComputedStyle(clock).fontSize);
+      if (clock.scrollWidth > clock.clientWidth && clock.clientWidth > 0) {
+        clock.style.fontSize = `${size * clock.clientWidth / clock.scrollWidth * 0.98}px`;
+      }
+    }
+
     function updateClocks() {
       const now = new Date();
       const text = timeFormat.format(now);
@@ -598,8 +584,10 @@
       }
       updateCountdown(now);
       updateSetDuration(performance.now());
+      fitClock();
     }
     updateClocks();
+    window.addEventListener('resize', fitClock);
     setInterval(updateClocks, 250);
     render();
   </script>
