@@ -23,13 +23,13 @@
       position: absolute;
       inset: 0 0 auto;
       z-index: 2;
-      display: grid;
-      grid-template-rows: 44px 20px;
-      padding: 0.25rem;
       pointer-events: none;
     }
 
     .toolbar {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -48,9 +48,9 @@
 
     #countdown {
       position: fixed;
-      top: 50%;
+      bottom: 0.25rem;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       width: var(--countdown-width);
       height: 44px;
       border: 1px solid currentColor;
@@ -92,10 +92,18 @@
     }
 
     .set-clock {
+      position: absolute;
+      top: 0.25rem;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      flex-shrink: 0;
+      align-items: center;
       gap: 0.2em;
-      font-size: clamp(0.65rem, 2.4vw, 1.25rem);
+      height: 44px;
+      max-width: max(0px, calc(100vw - 280px));
+      padding: 0 0.25rem;
+      background: #101218d9;
+      font-size: clamp(0.55rem, 2vw, 1.25rem);
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
@@ -171,9 +179,12 @@
     }
 
     #status {
+      position: absolute;
+      top: 96px;
+      left: 0;
+      right: 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin-inline: -0.25rem;
       text-align: center;
       font-weight: bold;
       font-size: clamp(0.75rem, 3vw, 1.25rem);
@@ -206,8 +217,35 @@
 
     .score svg { width: 100%; height: 100%; fill: currentColor; }
 
-    .red .score { right: max(5%, calc(var(--countdown-width) / 2 + 4px)); }
-    .blue .score { left: max(5%, calc(var(--countdown-width) / 2 + 4px)); }
+    .timeouts {
+      position: absolute;
+      z-index: 1;
+      top: 50px;
+      left: 5%;
+      right: 5%;
+      display: flex;
+      gap: 2px;
+    }
+
+    .timeout {
+      flex: 1;
+      min-width: 0;
+      min-height: 44px;
+      border: 1px solid currentColor;
+      border-radius: 0.35rem;
+      padding: 0.1rem;
+      background: #101218d9;
+      font-size: clamp(0.6rem, 2vw, 1rem);
+      line-height: 1.1;
+    }
+
+    .timeout[data-state="used"] {
+      color: #b7b7b7;
+      border-color: #888;
+      background: #555;
+    }
+
+    .timeout[data-state="blocked"] { border-style: dashed; }
 
     button {
       border: 0;
@@ -251,37 +289,10 @@
       outline-offset: -4px;
     }
 
-    .point {
-      grid-column: span 2;
-      display: grid;
-      justify-items: center;
-      align-items: start;
-      padding: 72px 0 0;
-      font-size: clamp(1rem, 4vh, 2rem);
-      line-height: 1.2;
-    }
+    .point, .subtract { grid-column: span 2; }
 
-    .side button[aria-disabled="true"] {
+    .side .point[aria-disabled="true"], .side .subtract[aria-disabled="true"] {
       background: #0003;
-    }
-
-    .side button span {
-      border: 2px solid transparent;
-      border-radius: 0.25rem;
-      padding: 0 0.15em;
-      line-height: 1;
-    }
-
-    .side button[aria-disabled="true"] span { border: 2px dashed #fff; }
-
-    .subtract {
-      grid-column: span 2;
-      display: grid;
-      justify-items: start;
-      align-items: end;
-      padding: 0 0 2px 0.5rem;
-      font-size: clamp(1rem, 4vh, 2rem);
-      line-height: 1.2;
     }
 
   </style>
@@ -295,11 +306,6 @@
         <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/>
       </svg>
     </button>
-    <button id="countdown" type="button" aria-label="Start countdown: 2:00"
-      aria-describedby="countdown-note" data-state="idle">2:00</button>
-    <div class="set-clock">
-      <span>Set</span><span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
-    </div>
     <div class="clock-actions">
       <button id="fullscreen" class="icon-button" type="button" aria-label="Full screen"
         title="Full screen" aria-pressed="false">
@@ -315,8 +321,13 @@
         </svg>
       </button>
     </div>
-    <time id="clock" aria-label="Local date and time"></time>
     </div>
+    <button id="countdown" type="button" aria-label="Start countdown: 2:00"
+      aria-describedby="countdown-note" data-state="idle">2:00</button>
+    <div class="set-clock">
+      <span>Set</span><span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
+    </div>
+    <time id="clock" aria-label="Local date and time"></time>
     <span id="countdown-note" class="sr-only">Two-minute countdown. Automatic start at :58.</span>
     <div id="status" role="status" aria-atomic="true">
       <span class="winner-label" aria-hidden="true"></span>
@@ -325,15 +336,24 @@
     </div>
   </header>
   <div id="countdown-announcement" class="sr-only" role="status" aria-atomic="true"></div>
+  <div id="timeout-announcement" class="sr-only" role="status" aria-atomic="true"></div>
   <main aria-label="Volleyball scoreboard">
     <section class="side red" aria-label="Red side">
-      <button class="point" type="button" aria-label="Add one point to red"><span aria-hidden="true">+</span></button>
-      <button class="subtract" type="button" aria-label="Subtract one point from red"><span aria-hidden="true">−</span></button>
+      <button class="point" type="button" aria-label="Add one point to red"></button>
+      <button class="subtract" type="button" aria-label="Subtract one point from red"></button>
+      <div class="timeouts" role="group" aria-label="Red timeouts">
+        <button class="timeout" type="button">Time Out 1</button>
+        <button class="timeout" type="button">Time Out 2</button>
+      </div>
       <output class="score" aria-label="Red score 00"><svg aria-hidden="true"></svg></output>
     </section>
     <section class="side blue" aria-label="Blue side">
-      <button class="point" type="button" aria-label="Add one point to blue"><span aria-hidden="true">+</span></button>
-      <button class="subtract" type="button" aria-label="Subtract one point from blue"><span aria-hidden="true">−</span></button>
+      <button class="point" type="button" aria-label="Add one point to blue"></button>
+      <button class="subtract" type="button" aria-label="Subtract one point from blue"></button>
+      <div class="timeouts" role="group" aria-label="Blue timeouts">
+        <button class="timeout" type="button">Time Out 1</button>
+        <button class="timeout" type="button">Time Out 2</button>
+      </div>
       <output class="score" aria-label="Blue score 00"><svg aria-hidden="true"></svg></output>
     </section>
   </main>
@@ -350,6 +370,9 @@
         After a win, additions stop, but corrections can reopen the set.</li>
       <li><strong>Set timer:</strong> Starts with the first point, stops at a win,
         and resumes if a correction removes the win.</li>
+      <li><strong>Timeouts:</strong> Each team has two 30-second timeouts per set.
+        Only one timeout can run at a time; the set timer keeps running.
+        Used timeouts are greyed out until a new set.</li>
       <li><strong>Countdown:</strong> Tap 2:00 to start a two-minute countdown before
         minute :58. It also starts automatically at :58 each hour, counting down
         to the next hour. A countdown already running keeps its end time.
@@ -363,12 +386,12 @@
       <li><strong>Offline:</strong> No internet is needed. The date and time use the local
         device clock. Reloading or closing the page loses scores and timers.</li>
     </ul>
-    <p>Help does not pause either timer. Use Tab to focus controls and Enter or
+    <p>Help does not pause timers. Use Tab to focus controls and Enter or
       Space to activate them. Close this popup with Close or Escape.</p>
   </dialog>
   <dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-message">
     <h2 id="reset-title">Start a new set?</h2>
-    <p id="reset-message">This clears both scores and both timers. This cannot be undone.</p>
+    <p id="reset-message">This clears both scores, all timers, and used timeouts. This cannot be undone.</p>
     <form method="dialog">
       <button type="submit" value="cancel" autofocus>Cancel</button>
       <button type="submit" value="reset">Start new set</button>
@@ -386,7 +409,12 @@
     const countdown = document.querySelector('#countdown');
     const countdownNote = document.querySelector('#countdown-note');
     const countdownAnnouncement = document.querySelector('#countdown-announcement');
+    const timeoutAnnouncement = document.querySelector('#timeout-announcement');
+    const timeoutButtons = document.querySelectorAll('.timeout');
+    const timeoutUsed = [false, false, false, false];
+    let activeTimeout = null;
     const setDuration = document.querySelector('#set-duration');
+    const setClock = document.querySelector('.set-clock');
     const countdownSeconds = 120;
     const countdownLength = countdownSeconds * 1000;
     let countdownEndsAt = 0;
@@ -458,6 +486,39 @@
     function formatDuration(seconds) {
       return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     }
+
+    function updateTimeouts(now) {
+      if (activeTimeout !== null && now >= activeTimeout.endsAt) {
+        const index = activeTimeout.index;
+        timeoutUsed[index] = true;
+        activeTimeout = null;
+        timeoutAnnouncement.textContent = `${teams[Math.floor(index / 2)]} time out ${index % 2 + 1} finished.`;
+      }
+      timeoutButtons.forEach((button, index) => {
+        const active = activeTimeout !== null && activeTimeout.index === index;
+        const blocked = activeTimeout !== null || timeoutUsed[index];
+        const state = active ? 'running' : timeoutUsed[index] ? 'used' : blocked ? 'blocked' : 'available';
+        const name = `Time Out ${index % 2 + 1}`;
+        const text = active ? `${name} ${formatDuration(Math.ceil((activeTimeout.endsAt - now) / 1000))}` : name;
+        const detail = active ? `running, ${text}` : timeoutUsed[index] ? `${name} used`
+          : blocked ? `${name} unavailable while a timeout is running` : name;
+        button.textContent = text;
+        button.dataset.state = state;
+        button.setAttribute('aria-disabled', String(blocked));
+        button.setAttribute('aria-label', `${teams[Math.floor(index / 2)]} ${detail}`);
+      });
+    }
+
+    timeoutButtons.forEach((button, index) => {
+      button.addEventListener('click', () => {
+        const now = performance.now();
+        updateTimeouts(now);
+        if (activeTimeout !== null || timeoutUsed[index]) return;
+        activeTimeout = { index, endsAt: now + 30_000 };
+        timeoutAnnouncement.textContent = `${teams[Math.floor(index / 2)]} time out ${index % 2 + 1} started.`;
+        updateTimeouts(now);
+      });
+    });
 
     function updateSetDuration(now) {
       const elapsed = setElapsed + (setRunningSince === null ? 0 : now - setRunningSince);
@@ -551,6 +612,10 @@
       setRunningSince = null;
       setElapsed = 0;
       countdownEndsAt = 0;
+      activeTimeout = null;
+      timeoutUsed.fill(false);
+      timeoutAnnouncement.textContent = '';
+      updateTimeouts(performance.now());
       const now = new Date();
       if (now.getMinutes() >= 58) lastAutomaticEnd = currentHourEnd(now);
       updateCountdown(now);
@@ -561,7 +626,8 @@
     const resetDialog = document.querySelector('#reset-dialog');
     document.querySelector('#reset').addEventListener('click', () => {
       if (scores.some(score => score > 0) || setRunningSince !== null
-        || setElapsed > 0 || countdownEndsAt !== 0) {
+        || setElapsed > 0 || countdownEndsAt !== 0 || activeTimeout !== null
+        || timeoutUsed.some(Boolean)) {
         resetDialog.returnValue = 'cancel';
         resetDialog.showModal();
       } else {
@@ -593,6 +659,14 @@
       }
     }
 
+    function fitSetClock() {
+      setClock.style.fontSize = '';
+      const size = parseFloat(getComputedStyle(setClock).fontSize);
+      if (setClock.scrollWidth > setClock.clientWidth && setClock.clientWidth > 8) {
+        setClock.style.fontSize = `${size * (setClock.clientWidth - 8) / (setClock.scrollWidth - 8) * 0.98}px`;
+      }
+    }
+
     function updateClocks() {
       const now = new Date();
       const text = timeFormat.format(now);
@@ -601,11 +675,15 @@
         clock.dateTime = now.toISOString();
       }
       updateCountdown(now);
-      updateSetDuration(performance.now());
+      const monotonicNow = performance.now();
+      updateSetDuration(monotonicNow);
+      updateTimeouts(monotonicNow);
       fitClock();
+      fitSetClock();
     }
     updateClocks();
     window.addEventListener('resize', fitClock);
+    window.addEventListener('resize', fitSetClock);
     setInterval(updateClocks, 250);
     render();
   </script>
