@@ -37,7 +37,6 @@
       min-width: 0;
       width: max-content;
       max-width: 100%;
-      background: #101218d9;
       pointer-events: auto;
     }
 
@@ -56,7 +55,6 @@
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.25em;
-      background: #101218f0;
       font-size: var(--countdown-font);
       font-weight: bold;
       font-variant-numeric: tabular-nums;
@@ -67,13 +65,11 @@
 
     #countdown[aria-disabled="true"] {
       border-style: dashed;
-      background: #29303a;
     }
 
     #countdown[data-state="idle"] {
       color: #9fa3ad;
       border-color: #697080;
-      background: #101218f0;
     }
 
     #clock {
@@ -82,7 +78,6 @@
       bottom: 0.25rem;
       max-width: calc(50vw - 3rem);
       padding: 0.25rem;
-      background: #101218e8;
       text-align: right;
       font-size: clamp(0.5rem, 2.4vw, 1.125rem);
       line-height: 1.15;
@@ -106,7 +101,6 @@
       padding: 0 0.25rem;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
-      background: #101218d9;
       font-size: clamp(1.1rem, 4vw, 2.5rem);
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
@@ -245,15 +239,14 @@
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1rem;
-      background: #101218d9;
       font-size: clamp(0.6rem, 2vw, 1rem);
       line-height: 1.1;
     }
 
     .timeout[data-state="used"] {
       color: #b7b7b7;
-      border-color: #888;
-      background: #555;
+      border-color: currentColor;
+      border-style: dashed;
     }
 
     .timeout[data-state="blocked"] { border-style: dashed; }
@@ -302,7 +295,7 @@
       stroke-linejoin: round;
     }
 
-    .icon-button[aria-pressed="true"] { background: #ffffff1a; }
+    .icon-button[aria-pressed="true"] { border-style: dashed; }
 
     button[aria-disabled="true"] { cursor: not-allowed; }
 
@@ -313,8 +306,10 @@
 
     .point, .subtract { grid-column: span 2; }
 
-    .side .point[aria-disabled="true"], .side .subtract[aria-disabled="true"] {
-      background: #0003;
+    .side .point[aria-disabled="true"]:not(:focus-visible),
+    .side .subtract[aria-disabled="true"]:not(:focus-visible) {
+      outline: 1px dashed #ffffff80;
+      outline-offset: -2px;
     }
 
   </style>

@@ -28,7 +28,8 @@ the page displays a message; use the browser's own full-screen command instead.
 ## Screen layout
 
 The red and blue panels fill the screen. Controls retain touch targets of at
-least 44 by 44 CSS pixels:
+least 44 by 44 CSS pixels, with transparent backgrounds over the panels. Help
+and reset dialogs retain opaque backgrounds for readability.
 
 - **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
   the upper right. The **Set** duration control is above the two-minute countdown
@@ -86,9 +87,9 @@ For keyboard operation, use **Tab** or **Shift+Tab** to focus a control, then
 Controls and score outputs have accessible labels identifying their team and
 action or current score.
 Icon-only buttons retain descriptive accessible names and hover tooltips. The
-full-screen icon is highlighted while active and its name changes to
+full-screen icon has a dashed border while active and its name changes to
 **Exit full screen**.
-Unavailable score controls have a contrasting background. Subtraction is
+Unavailable score controls have a dashed outline. Subtraction is
 unavailable at zero; additions become unavailable after a win.
 
 ## Winning a set and correcting scores
@@ -148,8 +149,8 @@ There is no manual pause button. This timer is independent of the countdown.
 
 Each side can use its two stopwatch buttons once per set. Selecting one
 starts a 30-second countdown on that button. Only one timeout can run at a time,
-and the set timer continues running. Once finished, the used button is greyed
-out and shows the score when the timeout was called, with the calling team's
+and the set timer continues running. Once finished, the used button has grey
+text and a dashed border and shows the score when the timeout was called, with the calling team's
 score first. For example, a blue timeout at red 10, blue 8 shows `8 - 10`.
 Both timeout icons are restored on **New set**.
 
