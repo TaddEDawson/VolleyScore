@@ -27,12 +27,13 @@ the page displays a message; use the browser's own full-screen command instead.
 
 ## Screen layout
 
-The red and blue panels fill the screen. A compact toolbar overlays their top
-edge, with controls retaining touch targets of at least 44 by 44 CSS pixels:
+The red and blue panels fill the screen. Controls retain touch targets of at
+least 44 by 44 CSS pixels:
 
-- The device's **local date and time** appear in the upper-right corner.
-- **New set** (circular refresh arrows), the **two-minute countdown**, **Set**
-  duration, **Full screen**, **Help**, and the local date and time share one row.
+- **New set** (circular refresh arrows), **Set** duration, **Full screen**, and
+  **Help** appear at the upper left.
+- The **two-minute countdown** is centered on the screen. The device's **local
+  date and time** appear in the lower-right corner.
 - The countdown is dimmed while idle and brightens when started manually or
   automatically at `:58`. It stays bright when it displays **TIMES UP**.
 - Countdown guidance is available through its tooltip and accessible description
@@ -53,8 +54,9 @@ The score panels split the screen equally:
 
 Scores start at `00` and use embedded SVG seven-segment digits. Values below ten
 have a leading zero; scores are not capped at two digits, and the graphics resize
-for longer values. The page is designed to fit the browser viewport without
-scrolling.
+for longer values. Each score has at least a 5% margin on both sides of its
+panel, with additional space beside the centered countdown as needed. The page
+is designed to fit the browser viewport without scrolling.
 
 ### In-app help
 
@@ -73,9 +75,8 @@ visible first. Its Close button stays at the top while the content scrolls.
 | Correct a point | Lower half of the red or blue panel, marked minus | Subtracts one point from that side |
 | Start another set | **New set** | Asks for confirmation when scores or timers are in use, then clears them |
 
-The touch targets cover the panel halves, not just the visible symbols or digits.
-Either side's entire lower half can subtract a point. Scores cannot go below
-`00`.
+The touch targets cover the panel halves, not just the visible symbols or digits,
+except where the overlaid controls are tapped. Scores cannot go below `00`.
 
 For keyboard operation, use **Tab** or **Shift+Tab** to focus a control, then
 **Enter** or **Space** to activate it. Focused buttons have a visible outline.
@@ -120,7 +121,7 @@ set finished.
 
 ### Local clock
 
-The upper-right clock displays the device's local date and time, including
+The lower-right clock displays the device's local date and time, including
 seconds, using the browser's locale formatting. It does not synchronize with
 an internet time service.
 
