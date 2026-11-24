@@ -32,8 +32,8 @@ least 44 by 44 CSS pixels, with transparent backgrounds over the panels. Help
 and reset dialogs retain opaque backgrounds for readability.
 
 - **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
-  the upper right. The larger set-duration control is at the top without a
-  visible label; select it to start the timer.
+  the upper right, below the clocks on narrower screens. The set-duration
+  control is at the top center without a visible label; select it to start it.
 - Each side has two stopwatch buttons above its score.
 - A volleyball button centered above each score selects that side as the first
   server. After selection, its ball is 1.5 times its original size and the other
@@ -45,9 +45,8 @@ and reset dialogs retain opaque backgrounds for readability.
 - The **two-minute countdown** is at the bottom center. The larger **local time**
   appears at the top left in 24-hour `HH:MM:SS` format.
 - All timer and timeout text uses the same responsive font size. The set
-  timer's colon stays centered as its duration grows.
-- Scoreboard text and rally tiles have no box outlines; icon controls retain
-  their borders. Keyboard focus remains visibly outlined.
+  timer's colon stays centered on the display as its duration grows.
+- Controls and dialogs have no borders. Keyboard focus remains visibly outlined.
 - The countdown is dimmed while idle and brightens when started manually or
   automatically at `:58`. It stays bright when it displays **TIMES UP**.
 - Countdown guidance is available through its tooltip and accessible description
@@ -120,7 +119,7 @@ For keyboard operation, use **Tab** or **Shift+Tab** to focus a control, then
 Controls and score outputs have accessible labels identifying their team and
 action or current score.
 Icon-only buttons retain descriptive accessible names and hover tooltips. The
-full-screen icon has a dashed border while active and its name changes to
+full-screen icon has a shaded background while active and its name changes to
 **Exit full screen**.
 Subtraction is unavailable at zero; additions become unavailable after a win.
 
