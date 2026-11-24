@@ -32,15 +32,18 @@ least 44 by 44 CSS pixels, with transparent backgrounds over the panels. Help
 and reset dialogs retain opaque backgrounds for readability.
 
 - **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
-  the upper right. The **Set** duration control is above the two-minute countdown
-  at the bottom center, with **SET** above its value; select it to start the timer.
+  the upper right. The larger set-duration control is at the top without a
+  visible label; select it to start the timer.
 - Each side has two stopwatch buttons above its score.
-- A volleyball button above each score selects that side as the first server.
+- A volleyball button centered above each score selects that side as the first
+  server. After selection, its ball is 1.5 times its original size and the other
+  ball is half-sized. Both return to their original sizes on reset.
 - A horizontal rally strip shows the current set's points in scoring order,
   red or blue for the scoring side, with each square showing that team's score.
-  Scroll it to see earlier rallies.
-- The **two-minute countdown** is at the bottom center. The device's **local
-  date and time** appear in the lower-right corner.
+  Scroll it to see earlier rallies. There is no visible rally-strip heading;
+  its accessible name remains available.
+- The **two-minute countdown** is at the bottom center. The larger **local time**
+  appears at the top left in 24-hour `HH:MM:SS` format.
 - The countdown is dimmed while idle and brightens when started manually or
   automatically at `:58`. It stays bright when it displays **TIMES UP**.
 - Countdown guidance is available through its tooltip and accessible description
@@ -151,9 +154,9 @@ set finished.
 
 ### Local clock
 
-The lower-right clock displays the device's local date and time, including
-seconds, using the browser's locale formatting. It does not synchronize with
-an internet time service.
+The top-left clock displays the device's local time as 24-hour `HH:MM:SS`,
+without a date. Statistics and set summaries retain localized dates and times.
+The clock does not synchronize with an internet time service.
 
 ### Set duration
 

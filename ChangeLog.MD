@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Moved the enlarged set and system clocks to the top, removed the visible SET
+  label, and formatted system time as 24-hour HH:MM:SS.
+- Centered volleyball selectors above the scores and scaled selected/unselected
+  balls to 1.5/0.5 times their original size.
+- Removed the visible rally heading while retaining the rally strip.
 - Fixed rally strip squares to show the scoring team's running score.
 
 ## 1.0.2 - 2026-11-24
