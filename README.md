@@ -44,6 +44,10 @@ and reset dialogs retain opaque backgrounds for readability.
   its accessible name remains available.
 - The **two-minute countdown** is at the bottom center. The larger **local time**
   appears at the top left in 24-hour `HH:MM:SS` format.
+- All timer and timeout text uses the same responsive font size. The set
+  timer's colon stays centered as its duration grows.
+- Scoreboard text and rally tiles have no box outlines; icon controls retain
+  their borders. Keyboard focus remains visibly outlined.
 - The countdown is dimmed while idle and brightens when started manually or
   automatically at `:58`. It stays bright when it displays **TIMES UP**.
 - Countdown guidance is available through its tooltip and accessible description
@@ -118,8 +122,7 @@ action or current score.
 Icon-only buttons retain descriptive accessible names and hover tooltips. The
 full-screen icon has a dashed border while active and its name changes to
 **Exit full screen**.
-Unavailable score controls have a dashed outline. Subtraction is
-unavailable at zero; additions become unavailable after a win.
+Subtraction is unavailable at zero; additions become unavailable after a win.
 
 ## Winning a set and correcting scores
 
@@ -179,7 +182,7 @@ There is no manual pause button. This timer is independent of the countdown.
 Each side can use its two stopwatch buttons once per set. Selecting one
 starts a 30-second countdown on that button. Only one timeout can run at a time,
 and the set timer continues running. Once finished, the used button has grey
-text and a dashed border and shows the score when the timeout was called, with the calling team's
+text and shows the score when the timeout was called, with the calling team's
 score first. For example, a blue timeout at red 10, blue 8 shows `8-10`.
 Both timeout icons are restored on **New set**.
 
