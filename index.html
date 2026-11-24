@@ -8,7 +8,7 @@
     * { box-sizing: border-box; }
 
     body {
-      --countdown-font: clamp(0.65rem, 2.4vw, 1.25rem);
+      --countdown-font: clamp(1.25rem, 3.5vw, 2rem);
       --countdown-width: max(44px, calc(var(--countdown-font) * 5.75));
       height: 100vh;
       height: 100dvh;
@@ -51,7 +51,7 @@
       left: 50%;
       transform: translateX(-50%);
       width: var(--countdown-width);
-      height: 44px;
+      height: 64px;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.25em;
@@ -76,7 +76,7 @@
       position: fixed;
       right: 0.25rem;
       bottom: 0.25rem;
-      max-width: calc(50vw - 3rem);
+      max-width: calc(50vw - var(--countdown-width) / 2 - 0.5rem);
       padding: 0.25rem;
       text-align: right;
       font-size: clamp(0.5rem, 2.4vw, 1.125rem);
@@ -88,7 +88,7 @@
 
     .set-clock {
       position: fixed;
-      bottom: 56px;
+      bottom: 76px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -96,12 +96,12 @@
       align-items: center;
       justify-content: center;
       gap: 0.2em;
-      height: 96px;
-      max-width: calc(50vw - 3rem);
+      height: 112px;
+      max-width: calc(50vw - 1rem);
       padding: 0 0.25rem;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
-      font-size: clamp(1.1rem, 4vw, 2.5rem);
+      font-size: clamp(1.5rem, 5vw, 3.5rem);
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
@@ -183,13 +183,13 @@
 
     #status {
       position: absolute;
-      top: 108px;
+      top: 168px;
       left: 0;
       right: 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       align-items: center;
-      height: 56px;
+      height: 28px;
       text-align: center;
       font-weight: bold;
       font-size: clamp(0.75rem, 3vw, 1.25rem);
@@ -214,7 +214,7 @@
 
     .score {
       position: absolute;
-      inset: 172px 5% 52px;
+      inset: 204px 5% 72px;
       display: grid;
       place-items: center;
       pointer-events: none;
@@ -225,9 +225,9 @@
     .timeouts {
       position: absolute;
       z-index: 1;
-      top: 56px;
-      left: 5%;
-      right: 5%;
+      top: 84px;
+      left: 1%;
+      right: 1%;
       display: flex;
       gap: 2px;
     }
@@ -235,12 +235,13 @@
     .timeout {
       flex: 1;
       min-width: 0;
-      min-height: 44px;
+      min-height: 76px;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1rem;
-      font-size: clamp(0.6rem, 2vw, 1rem);
+      font-size: clamp(1.1rem, 3vw, 2rem);
       line-height: 1.1;
+      white-space: nowrap;
     }
 
     .timeout[data-state="used"] {
@@ -252,8 +253,8 @@
     .timeout[data-state="blocked"] { border-style: dashed; }
 
     .timeout svg {
-      width: 24px;
-      height: 24px;
+      width: 72px;
+      height: 72px;
       vertical-align: middle;
       fill: none;
       stroke: currentColor;
@@ -279,15 +280,15 @@
     header button.icon-button {
       display: grid;
       place-items: center;
-      width: 44px;
-      height: 44px;
+      width: 76px;
+      height: 76px;
       flex-shrink: 0;
       padding: 0;
     }
 
     .icon-button svg {
-      width: 24px;
-      height: 24px;
+      width: 72px;
+      height: 72px;
       fill: none;
       stroke: currentColor;
       stroke-width: 2;
@@ -523,6 +524,15 @@
       return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     }
 
+    function fitTimeout(button) {
+      button.style.fontSize = '';
+      if (button.querySelector('svg')) return;
+      const size = parseFloat(getComputedStyle(button).fontSize);
+      if (button.scrollWidth > button.clientWidth && button.clientWidth > 0) {
+        button.style.fontSize = `${size * button.clientWidth / button.scrollWidth * 0.98}px`;
+      }
+    }
+
     function updateTimeouts(now) {
       if (activeTimeout !== null && now >= activeTimeout.endsAt) {
         const index = activeTimeout.index;
@@ -536,13 +546,17 @@
         const state = active ? 'running' : timeoutUsed[index] ? 'used' : blocked ? 'blocked' : 'available';
         const name = `Time Out ${index % 2 + 1}`;
         const text = active ? formatDuration(Math.ceil((activeTimeout.endsAt - now) / 1000))
-          : timeoutUsed[index] ? timeoutScores[index].join(' - ') : null;
+          : timeoutUsed[index] ? timeoutScores[index].join('-') : null;
         const detail = active ? `${name} running, ${text}` : timeoutUsed[index] ? `${name} used, score ${text}, calling team first`
           : blocked ? `${name} unavailable while a timeout is running` : name;
         if (text !== null) {
-          if (button.textContent !== text) button.textContent = text;
+          if (button.textContent !== text) {
+            button.textContent = text;
+            fitTimeout(button);
+          }
         } else if (!button.querySelector('svg')) {
           button.replaceChildren(timeoutIcon.content.cloneNode(true));
+          button.style.fontSize = '';
         }
         button.dataset.state = state;
         button.setAttribute('aria-disabled', String(blocked));
@@ -742,6 +756,10 @@
       if (setClock.scrollWidth > setClock.clientWidth && setClock.clientWidth > 8) {
         setClock.style.fontSize = `${size * (setClock.clientWidth - 8) / (setClock.scrollWidth - 8) * 0.98}px`;
       }
+      if (setClock.scrollHeight > setClock.clientHeight && setClock.clientHeight > 4) {
+        const fittedSize = parseFloat(getComputedStyle(setClock).fontSize);
+        setClock.style.fontSize = `${fittedSize * (setClock.clientHeight - 4) / (setClock.scrollHeight - 4) * 0.98}px`;
+      }
     }
 
     function updateClocks() {
@@ -761,6 +779,7 @@
     updateClocks();
     window.addEventListener('resize', fitClock);
     window.addEventListener('resize', fitSetClock);
+    window.addEventListener('resize', () => timeoutButtons.forEach(fitTimeout));
     setInterval(updateClocks, 250);
     render();
   </script>

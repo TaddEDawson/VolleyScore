@@ -151,7 +151,7 @@ Each side can use its two stopwatch buttons once per set. Selecting one
 starts a 30-second countdown on that button. Only one timeout can run at a time,
 and the set timer continues running. Once finished, the used button has grey
 text and a dashed border and shows the score when the timeout was called, with the calling team's
-score first. For example, a blue timeout at red 10, blue 8 shows `8 - 10`.
+score first. For example, a blue timeout at red 10, blue 8 shows `8-10`.
 Both timeout icons are restored on **New set**.
 
 ### Two-minute countdown
