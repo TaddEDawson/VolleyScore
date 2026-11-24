@@ -8,8 +8,7 @@
     * { box-sizing: border-box; }
 
     body {
-      --countdown-font: clamp(1.25rem, 3.5vw, 2rem);
-      --countdown-width: max(44px, calc(var(--countdown-font) * 5.75));
+      --countdown-width: min(46vw, 360px);
       --clock-row: clamp(112px, 18vh, 160px);
       height: 100vh;
       height: 100dvh;
@@ -53,10 +52,8 @@
       transform: translateX(-50%);
       width: var(--countdown-width);
       height: 64px;
-      border: 1px solid currentColor;
-      border-radius: 0.35rem;
       padding: 0.1em 0.25em;
-      font-size: var(--countdown-font);
+      font-size: 1rem;
       font-weight: bold;
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
@@ -64,13 +61,8 @@
       pointer-events: auto;
     }
 
-    #countdown[aria-disabled="true"] {
-      border-style: dashed;
-    }
-
     #countdown[data-state="idle"] {
       color: #9fa3ad;
-      border-color: #697080;
     }
 
     #clock {
@@ -82,7 +74,7 @@
       display: flex;
       align-items: center;
       padding: 0.25rem;
-      font-size: clamp(1rem, 4.8vw, 2.25rem);
+      font-size: 1rem;
       line-height: 1.15;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
@@ -94,22 +86,26 @@
       top: 0;
       left: calc((100vw - 320px) * 0.7);
       transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.2em;
+      display: grid;
+      place-items: center;
       height: var(--clock-row);
       width: calc((100vw - 320px) * 0.6 - 0.5rem);
       padding: 0 0.25rem;
-      border: 1px solid currentColor;
-      border-radius: 0.35rem;
-      font-size: clamp(3rem, 10vw, 7rem);
+      font-size: 1rem;
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
       pointer-events: auto;
     }
+
+    #set-duration {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      width: 100%;
+    }
+
+    #set-minutes { text-align: right; }
+    #set-seconds { text-align: left; }
 
     .clock-actions {
       display: flex;
@@ -272,8 +268,6 @@
       place-items: center;
       min-width: 28px;
       height: 28px;
-      border: 1px solid #fff9;
-      border-radius: 0.2rem;
       font-size: 0.75rem;
       font-variant-numeric: tabular-nums;
     }
@@ -326,21 +320,21 @@
       flex: 1;
       min-width: 0;
       min-height: 76px;
-      border: 1px solid currentColor;
-      border-radius: 0.35rem;
       padding: 0.1rem;
-      font-size: clamp(1.1rem, 3vw, 2rem);
+      font-size: 1rem;
       line-height: 1.1;
       white-space: nowrap;
     }
 
     .timeout[data-state="used"] {
       color: #b7b7b7;
-      border-color: currentColor;
-      border-style: dashed;
     }
 
-    .timeout[data-state="blocked"] { border-style: dashed; }
+    .timeout[data-state="blocked"] { opacity: 0.6; }
+    .timeout[data-state="available"], .timeout[data-state="blocked"] {
+      border: 1px solid currentColor;
+      border-radius: 0.35rem;
+    }
 
     .timeout svg {
       width: 72px;
@@ -398,12 +392,6 @@
 
     .point, .subtract { grid-column: span 2; }
 
-    .side .point[aria-disabled="true"]:not(:focus-visible),
-    .side .subtract[aria-disabled="true"]:not(:focus-visible) {
-      outline: 1px dashed #ffffff80;
-      outline-offset: -2px;
-    }
-
   </style>
 </head>
 <body>
@@ -440,7 +428,7 @@
     <button id="countdown" type="button" aria-label="Start countdown: 2:00"
       aria-describedby="countdown-note" data-state="idle">2:00</button>
     <button class="set-clock" type="button" aria-label="Start set timer" title="Start set timer">
-      <span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
+      <span id="set-duration" role="timer" aria-label="Set duration"><span id="set-minutes">0</span><span>:</span><span id="set-seconds">00</span></span>
     </button>
     <time id="clock" aria-label="Local time"></time>
     <span id="countdown-note" class="sr-only">Two-minute countdown. Automatic start at :58.</span>
@@ -613,6 +601,8 @@
     const timeoutScores = [null, null, null, null];
     let activeTimeout = null;
     const setDuration = document.querySelector('#set-duration');
+    const setMinutes = document.querySelector('#set-minutes');
+    const setSeconds = document.querySelector('#set-seconds');
     const setClock = document.querySelector('.set-clock');
     const statisticsDialog = document.querySelector('#statistics-dialog');
     const firstServerSelect = document.querySelector('#first-server');
@@ -799,15 +789,6 @@
       return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     }
 
-    function fitTimeout(button) {
-      button.style.fontSize = '';
-      if (button.querySelector('svg')) return;
-      const size = parseFloat(getComputedStyle(button).fontSize);
-      if (button.scrollWidth > button.clientWidth && button.clientWidth > 0) {
-        button.style.fontSize = `${size * button.clientWidth / button.scrollWidth * 0.98}px`;
-      }
-    }
-
     function updateTimeouts(now) {
       if (activeTimeout !== null && now >= activeTimeout.endsAt) {
         const index = activeTimeout.index;
@@ -827,11 +808,9 @@
         if (text !== null) {
           if (button.textContent !== text) {
             button.textContent = text;
-            fitTimeout(button);
           }
         } else if (!button.querySelector('svg')) {
           button.replaceChildren(timeoutIcon.content.cloneNode(true));
-          button.style.fontSize = '';
         }
         button.dataset.state = state;
         button.setAttribute('aria-disabled', String(blocked));
@@ -857,7 +836,11 @@
     function updateSetDuration(now) {
       const elapsed = setElapsed + (setRunningSince === null ? 0 : now - setRunningSince);
       const text = formatDuration(Math.floor(elapsed / 1000));
-      if (setDuration.textContent !== text) setDuration.textContent = text;
+      if (setDuration.textContent !== text) {
+        const [minutes, seconds] = text.split(':');
+        setMinutes.textContent = minutes;
+        setSeconds.textContent = seconds;
+      }
       const canStart = winner === -1 && setRunningSince === null;
       const label = canStart ? 'Start set timer' : winner === -1 ? 'Set timer running' : 'Set timer stopped: set finished';
       setClock.setAttribute('aria-disabled', String(!canStart));
@@ -869,7 +852,7 @@
       if (winner !== -1 || setRunningSince !== null) return;
       startSetTimer(performance.now());
       updateSetDuration(setRunningSince);
-      fitSetClock();
+      fitTimerText();
     });
 
     function startSetTimer(now) {
@@ -1088,30 +1071,32 @@
     const clockFormat = new Intl.DateTimeFormat('en-GB', {
       hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
     });
-    let clockFitKey = '';
-    function fitClock() {
-      const key = `${clock.clientWidth}:${clock.textContent}`;
-      if (key === clockFitKey) return;
-      clockFitKey = key;
-      clock.style.fontSize = '';
-      const size = parseFloat(getComputedStyle(clock).fontSize);
-      if (clock.scrollWidth > clock.clientWidth && clock.clientWidth > 0) {
-        clock.style.fontSize = `${size * clock.clientWidth / clock.scrollWidth * 0.98}px`;
+    function fitTimerText() {
+      const context = fitTimerText.context || (fitTimerText.context = document.createElement('canvas').getContext('2d'));
+      const items = [
+        { element: clock, text: clock.textContent, width: clock.clientWidth - 8, height: clock.clientHeight - 8 },
+        { element: setClock, text: setDuration.textContent, width: setClock.clientWidth - 8, height: setClock.clientHeight - 8 },
+        { element: countdown, text: countdown.textContent, width: countdown.clientWidth - 8, height: countdown.clientHeight - 8 },
+        ...Array.from(timeoutButtons, button => ({
+          element: button,
+          text: button.querySelector('svg') ? '0:30' : button.textContent,
+          width: button.clientWidth - 8,
+          height: button.clientHeight - 8
+        }))
+      ];
+      let size = Math.min(64, ...items.map(item => item.height / 1.25));
+      for (const item of items) {
+        const style = getComputedStyle(item.element);
+        context.font = `${style.fontWeight} ${size}px ${style.fontFamily}`;
+        const parts = item.element === setClock ? item.text.split(':') : null;
+        const measured = parts
+          ? 2 * Math.max(context.measureText(parts[0]).width, context.measureText(parts[1]).width)
+            + context.measureText(':').width
+          : context.measureText(item.text).width;
+        if (measured > 0) size = Math.min(size, size * item.width / measured);
       }
-    }
-
-    function fitSetClock() {
-      setClock.style.fontSize = '';
-      const size = Math.min(parseFloat(getComputedStyle(setClock).fontSize),
-        (setClock.clientHeight - 4) / 1.2);
-      setClock.style.fontSize = `${size}px`;
-      if (setClock.scrollWidth > setClock.clientWidth && setClock.clientWidth > 8) {
-        setClock.style.fontSize = `${size * (setClock.clientWidth - 8) / (setClock.scrollWidth - 8) * 0.98}px`;
-      }
-      if (setClock.scrollHeight > setClock.clientHeight && setClock.clientHeight > 4) {
-        const fittedSize = parseFloat(getComputedStyle(setClock).fontSize);
-        setClock.style.fontSize = `${fittedSize * (setClock.clientHeight - 4) / (setClock.scrollHeight - 4) * 0.98}px`;
-      }
+      const fontSize = `${Math.max(1, size * 0.95)}px`;
+      for (const item of items) item.element.style.fontSize = fontSize;
     }
 
     function updateClocks() {
@@ -1125,13 +1110,10 @@
       const monotonicNow = performance.now();
       updateSetDuration(monotonicNow);
       updateTimeouts(monotonicNow);
-      fitClock();
-      fitSetClock();
+      fitTimerText();
     }
     updateClocks();
-    window.addEventListener('resize', fitClock);
-    window.addEventListener('resize', fitSetClock);
-    window.addEventListener('resize', () => timeoutButtons.forEach(fitTimeout));
+    window.addEventListener('resize', fitTimerText);
     setInterval(updateClocks, 250);
     render();
   </script>
