@@ -45,7 +45,7 @@ and reset dialogs retain opaque backgrounds for readability.
 - Countdown guidance is available through its tooltip and accessible description
   rather than a visible line of instructions.
 - **Help**, shown as a question mark, opens a quick functionality synopsis and shows
-  the app version (**1.0.1**).
+  the app version (**1.0.2**).
 - **Statistics**, shown as `#`, opens the current set timeline.
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
@@ -279,7 +279,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
    clears both scores, the winner, all timers, and used timeouts.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
-9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.1`,
+9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.2`,
    starts at the top, and closes without changing scores or stopping timers.
 10. Header controls retain readable text and 44-pixel minimum touch targets.
     Winner and countdown-completion status messages provide useful context

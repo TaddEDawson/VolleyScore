@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 - 2026-11-24
 
 - Added a red and blue rally strip and volleyball buttons for selecting the first server.
 - Added a running-score step chart to the completed-set recap, including corrections.
