@@ -42,7 +42,8 @@ and reset dialogs retain opaque backgrounds for readability.
 - Countdown guidance is available through its tooltip and accessible description
   rather than a visible line of instructions.
 - **Help**, shown as a question mark, opens a quick functionality synopsis and shows
-  the app version (**1.0.0**).
+  the app version (**1.0.1**).
+- **Statistics**, shown as `#`, opens the current set timeline.
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
   is centered vertically between the timeout buttons and the score, and
@@ -70,6 +71,26 @@ timers, reset behavior, and data loss on reload. Close it with **Close** or
 the scoreboard controls are unavailable, but clocks and timers continue running.
 Help opens at the top with its heading focused so the synopsis and version are
 visible first. Its Close button stays at the top while the content scrolls.
+
+### Set statistics
+
+Select **#** to see a chronological timeline with local event time, event type,
+team, rotation (1-6), and score. Choose the first serving team in Statistics
+before scoring, or choose it when the first point is awarded. Cancelling the
+first-server prompt does not award that point. Both teams start at rotation 1.
+The team gaining serve rotates forward, wrapping from 6 to 1; consecutive
+points by the serving team do not change its rotation.
+
+Point scores are always red first. Timeout entries identify the calling team
+and show its score first, saved when the timeout was called. Score corrections
+undo that team's latest uncorrected point and recalculate current rotations
+from remaining points; earlier timeline snapshots remain unchanged. The first
+server cannot change after scoring starts.
+
+The timeline records set starts, points, corrections, timeout calls, wins, and
+reopened sets. Opening Statistics does not pause timers. A confirmed **New set**
+or page reload clears the timeline and first-server choice. See
+[ChangeLog.MD](ChangeLog.MD) for release summaries.
 
 ## Scoring controls
 
@@ -208,6 +229,7 @@ A confirmed reset:
 - Clears and stops the set-duration timer.
 - Cancels the countdown and restores its display to `2:00`.
 - Cancels any active timeout and restores both teams' timeout buttons.
+- Clears statistics, rotations, and the first-server choice.
 
 If the reset is completed during minutes `:58` or `:59`, that hour's automatic countdown is
 suppressed. The countdown stays at `2:00` but cannot be started manually until
@@ -228,7 +250,7 @@ the next hour. Future hourly automatic countdowns still work.
   clock.
 - Panel colors, the 25-point target, and the two-point winning
   margin are fixed. There are no configurable team names, 15-point deciding-set
-  mode, match-level set totals, history, undo, export, or multi-device syncing.
+  mode, match-level set totals, past-set history, undo, export, or multi-device syncing.
 - Use a current browser supporting CSS Grid, SVG, and
   modern JavaScript APIs. Help and reset confirmation require native HTML dialog
   support.
@@ -251,7 +273,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
    clears both scores, the winner, all timers, and used timeouts.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
-9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.0`,
+9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.1`,
    starts at the top, and closes without changing scores or stopping timers.
 10. Header controls retain readable text and 44-pixel minimum touch targets.
     Winner and countdown-completion status messages provide useful context
@@ -260,3 +282,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
     others, counts down for 30 seconds, then displays its saved score until reset.
 12. After a win, selecting **New set** shows the final score, start and end times,
     and duration before clearing the set.
+13. Choose a first server, award points to both sides, and check rotations in
+    **#**. Only side-outs rotate a team; corrections recalculate rotations.
+14. Check timeout entries show the calling team's saved score first, and that
+    cancelling reset preserves statistics while confirming clears them.

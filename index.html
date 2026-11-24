@@ -141,6 +141,17 @@
     #set-summary dt { font-weight: bold; }
     #set-summary dd { margin: 0 0 0.75rem; }
     #help-dialog li { margin-bottom: 0.5rem; }
+    #statistics-dialog { width: min(60rem, 96vw); }
+    .timeline-scroll { overflow-x: auto; }
+    #timeline { width: 100%; border-collapse: collapse; }
+    #timeline th, #timeline td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #ffffff60;
+      text-align: left;
+      white-space: nowrap;
+    }
+    #first-server { padding: 0.5rem; font: inherit; }
+    #first-server-label { display: block; margin-block: 0.75rem; }
 
     dialog button {
       border: 1px solid currentColor;
@@ -338,6 +349,12 @@
           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>
         </svg>
       </button>
+      <button id="statistics" class="icon-button" type="button" aria-label="Statistics"
+        title="Statistics" aria-haspopup="dialog" aria-controls="statistics-dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M10 3L6 21M18 3l-4 18M4 9h17M3 15h17"/>
+        </svg>
+      </button>
     </div>
     </div>
     <button id="countdown" type="button" aria-label="Start countdown: 2:00"
@@ -386,7 +403,7 @@
       <h2 id="help-title" tabindex="-1" autofocus>VolleyScore Help</h2>
       <form method="dialog"><button type="submit">Close</button></form>
     </div>
-    <p>Version 1.0.0</p>
+    <p>Version 1.0.1</p>
     <ul>
       <li><strong>Score:</strong> Tap the upper half of the red or blue side to add a point.
         Tap the lower half to subtract one. Scores cannot go below 00.</li>
@@ -410,11 +427,50 @@
         During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
       <li><strong>Full screen (diagonal arrows):</strong> Expand the scoreboard to fill the screen.
         Select the icon again or press Escape to leave full-screen mode.</li>
+      <li><strong>Statistics (#):</strong> View the current set timeline. Choose the first
+        server before scoring. Both teams start in rotation 1; the team gaining
+        serve rotates to the next position, wrapping from 6 to 1.
+        Corrections undo that team's latest uncorrected point and recalculate
+        rotations. New set clears the timeline.</li>
       <li><strong>Offline:</strong> No internet is needed. The date and time use the local
         device clock. Reloading or closing the page loses scores and timers.</li>
     </ul>
     <p>Help does not pause timers. Use Tab to focus controls and Enter or
       Space to activate them. Close this popup with Close or Escape.</p>
+  </dialog>
+  <dialog id="statistics-dialog" aria-labelledby="statistics-title">
+    <div class="dialog-header">
+      <h2 id="statistics-title" tabindex="-1" autofocus>Set statistics</h2>
+      <form method="dialog"><button type="submit">Close</button></form>
+    </div>
+    <label id="first-server-label">First serving team
+      <select id="first-server">
+        <option value="">Choose before the first point</option>
+        <option value="0">Red</option>
+        <option value="1">Blue</option>
+      </select>
+    </label>
+    <p>Both teams start in rotation 1. Point scores are Red - Blue.
+      Timeout scores list the calling team first. Rotations show the event team's
+      position after the event. Corrections preserve earlier event snapshots.</p>
+    <p id="timeline-empty">No set events yet.</p>
+    <div class="timeline-scroll">
+      <table id="timeline">
+        <caption class="sr-only">Current set events in chronological order</caption>
+        <thead><tr><th scope="col">Time</th><th scope="col">Event</th>
+          <th scope="col">Team</th><th scope="col">Rotation</th><th scope="col">Score</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </dialog>
+  <dialog id="server-dialog" aria-labelledby="server-title">
+    <h2 id="server-title">Which team serves first?</h2>
+    <p>Both teams start in rotation 1. Your selected point is awarded after choosing.</p>
+    <form method="dialog">
+      <button type="submit" value="0">Red serves first</button>
+      <button type="submit" value="1">Blue serves first</button>
+      <button type="submit" value="cancel" autofocus>Cancel</button>
+    </form>
   </dialog>
   <dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-message">
     <h2 id="reset-title">Start a new set?</h2>
@@ -424,7 +480,7 @@
       <dt>End Time</dt><dd id="set-end-time"></dd>
       <dt>Set Duration</dt><dd id="final-duration"></dd>
     </dl>
-    <p id="reset-message">This clears both scores, all timers, and used timeouts. This cannot be undone.</p>
+    <p id="reset-message">This clears both scores, all timers, used timeouts, and statistics. This cannot be undone.</p>
     <form method="dialog">
       <button type="submit" value="cancel" autofocus>Cancel</button>
       <button type="submit" value="reset">Start new set</button>
@@ -450,6 +506,15 @@
     let activeTimeout = null;
     const setDuration = document.querySelector('#set-duration');
     const setClock = document.querySelector('.set-clock');
+    const statisticsDialog = document.querySelector('#statistics-dialog');
+    const firstServerSelect = document.querySelector('#first-server');
+    const serverDialog = document.querySelector('#server-dialog');
+    const timelineBody = document.querySelector('#timeline tbody');
+    const events = [];
+    const points = [];
+    const rotations = [1, 1];
+    let firstServer = null;
+    let pendingPoint = null;
     const countdownSeconds = 120;
     const countdownLength = countdownSeconds * 1000;
     let countdownEndsAt = 0;
@@ -472,6 +537,66 @@
       '05623', '056234', '012', '0123456', '012356'
     ];
     let winner = -1;
+
+    function recordEvent(type, team = null, score = scores) {
+      events.push({
+        time: new Date(), type, team,
+        rotation: team === null ? null : rotations[team],
+        score: score.slice()
+      });
+      if (statisticsDialog.open) renderStatistics();
+    }
+
+    function recalculateRotations() {
+      rotations.fill(1);
+      let serving = firstServer;
+      for (const point of points) {
+        if (point.corrected) continue;
+        if (serving !== point.team) {
+          rotations[point.team] = rotations[point.team] % 6 + 1;
+          serving = point.team;
+        }
+      }
+    }
+
+    function renderStatistics() {
+      firstServerSelect.value = firstServer === null ? '' : String(firstServer);
+      firstServerSelect.disabled = points.length > 0;
+      document.querySelector('#timeline-empty').hidden = events.length > 0;
+      const rows = events.map(event => {
+        const row = document.createElement('tr');
+        const values = [timeFormat.format(event.time), event.type,
+          event.team === null ? '-' : teams[event.team],
+          event.rotation === null ? '-' : String(event.rotation), event.score.join(' - ')];
+        values.forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.append(cell);
+        });
+        return row;
+      });
+      timelineBody.replaceChildren(...rows);
+    }
+
+    firstServerSelect.addEventListener('change', () => {
+      if (points.length > 0) return;
+      firstServer = firstServerSelect.value === '' ? null : Number(firstServerSelect.value);
+    });
+
+    document.querySelector('#statistics').addEventListener('click', () => {
+      renderStatistics();
+      statisticsDialog.showModal();
+      statisticsDialog.scrollTop = 0;
+      document.querySelector('#statistics-title').focus({ preventScroll: true });
+    });
+
+    serverDialog.addEventListener('close', () => {
+      const side = pendingPoint;
+      pendingPoint = null;
+      if (side === null || !['0', '1'].includes(serverDialog.returnValue)) return;
+      firstServer = Number(serverDialog.returnValue);
+      awardPoint(side);
+    });
 
     const helpDialog = document.querySelector('#help-dialog');
     document.querySelector('#help').addEventListener('click', () => {
@@ -572,6 +697,7 @@
         if (activeTimeout !== null || timeoutUsed[index]) return;
         const team = Math.floor(index / 2);
         timeoutScores[index] = [scores[team], scores[1 - team]];
+        recordEvent('Timeout', team, timeoutScores[index]);
         activeTimeout = { index, endsAt: now + 30_000 };
         timeoutAnnouncement.textContent = `${teams[Math.floor(index / 2)]} time out ${index % 2 + 1} started.`;
         updateTimeouts(now);
@@ -598,7 +724,10 @@
 
     function startSetTimer(now) {
       if (setRunningSince !== null) return;
-      if (setStartedAt === null) setStartedAt = new Date();
+      if (setStartedAt === null) {
+        setStartedAt = new Date();
+        recordEvent('Set started');
+      }
       setRunningSince = now;
     }
 
@@ -663,29 +792,54 @@
       if (winner !== previousWinner) {
         winnerAnnouncement.textContent = winner === -1 ? 'Score corrected. Play continues.'
           : `${teams[winner]} wins the set.`;
+        recordEvent(winner === -1 ? 'Set reopened' : 'Set won', winner === -1 ? null : winner);
       }
+    }
+
+    function awardPoint(side) {
+      if (winner !== -1) return;
+      const now = performance.now();
+      startSetTimer(now);
+      scores[side]++;
+      points.push({ team: side, corrected: false });
+      recalculateRotations();
+      recordEvent('Point', side);
+      render(now);
     }
 
     addButtons.forEach((button, side) => {
       button.addEventListener('click', () => {
         if (winner !== -1) return;
-        const now = performance.now();
-        startSetTimer(now);
-        scores[side]++;
-        render(now);
+        if (firstServer === null) {
+          pendingPoint = side;
+          serverDialog.returnValue = 'cancel';
+          serverDialog.showModal();
+          return;
+        }
+        awardPoint(side);
       });
     });
 
     subtractButtons.forEach((button, side) => {
       button.addEventListener('click', () => {
         if (scores[side] === 0) return;
+        const point = points.findLast(point => point.team === side && !point.corrected);
+        point.corrected = true;
         scores[side]--;
+        recalculateRotations();
+        recordEvent('Point corrected', side);
         render();
       });
     });
 
     function resetSet() {
       scores.fill(0);
+      events.length = 0;
+      points.length = 0;
+      rotations.fill(1);
+      firstServer = null;
+      pendingPoint = null;
+      renderStatistics();
       winner = -1;
       setRunningSince = null;
       setElapsed = 0;
