@@ -10,6 +10,7 @@
     body {
       --countdown-font: clamp(1.25rem, 3.5vw, 2rem);
       --countdown-width: max(44px, calc(var(--countdown-font) * 5.75));
+      --clock-row: clamp(112px, 18vh, 160px);
       height: 100vh;
       height: 100dvh;
       margin: 0;
@@ -28,7 +29,7 @@
 
     .toolbar {
       position: absolute;
-      top: 0.25rem;
+      top: 4px;
       right: 0.25rem;
       display: flex;
       align-items: center;
@@ -74,12 +75,14 @@
 
     #clock {
       position: fixed;
-      right: 0.25rem;
-      bottom: 0.25rem;
-      max-width: calc(50vw - var(--countdown-width) / 2 - 0.5rem);
+      top: 0;
+      left: 0.25rem;
+      width: calc((100vw - 320px) * 0.4);
+      height: var(--clock-row);
+      display: flex;
+      align-items: center;
       padding: 0.25rem;
-      text-align: right;
-      font-size: clamp(0.5rem, 2.4vw, 1.125rem);
+      font-size: clamp(1rem, 4.8vw, 2.25rem);
       line-height: 1.15;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
@@ -88,27 +91,25 @@
 
     .set-clock {
       position: fixed;
-      bottom: 76px;
-      left: 50%;
+      top: 0;
+      left: calc((100vw - 320px) * 0.7);
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0.2em;
-      height: 112px;
-      max-width: calc(50vw - 1rem);
+      height: var(--clock-row);
+      width: calc((100vw - 320px) * 0.6 - 0.5rem);
       padding: 0 0.25rem;
       border: 1px solid currentColor;
       border-radius: 0.35rem;
-      font-size: clamp(1.5rem, 5vw, 3.5rem);
+      font-size: clamp(3rem, 10vw, 7rem);
       line-height: 1.1;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
       pointer-events: auto;
     }
-
-    .set-label { font-size: 0.5em; }
 
     .clock-actions {
       display: flex;
@@ -202,7 +203,7 @@
 
     #status {
       position: absolute;
-      top: 168px;
+      top: calc(var(--clock-row) + 196px);
       left: 0;
       right: 0;
       display: grid;
@@ -234,22 +235,25 @@
     .first-server-button {
       position: absolute;
       z-index: 1;
-      top: 164px;
-      left: 1%;
-      width: 44px;
-      height: 44px;
+      top: calc(var(--clock-row) + 128px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 66px;
+      height: 66px;
       padding: 4px;
       border: 1px solid transparent;
       border-radius: 50%;
     }
 
-    .first-server-button[aria-pressed="true"] { border-color: currentColor; background: #0006; }
-    .first-server-button svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .first-server-button[aria-pressed="true"] { border-color: currentColor; }
+    .first-server-button svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .first-server-button[aria-pressed="true"] svg { width: 54px; height: 54px; }
+    .first-server-button[aria-pressed="false"][data-selection="chosen"] svg { width: 18px; height: 18px; }
 
     #rally-strip {
       position: fixed;
       z-index: 1;
-      top: 212px;
+      top: calc(var(--clock-row) + 4px);
       left: 0;
       right: 0;
       display: flex;
@@ -261,7 +265,6 @@
       background: #101218e8;
       pointer-events: auto;
     }
-    #rally-strip-label { flex: none; font-size: 0.8rem; }
     #rallies { display: flex; gap: 2px; margin: 0; padding: 0; list-style: none; }
     #rallies li {
       display: grid;
@@ -277,7 +280,7 @@
 
     .score {
       position: absolute;
-      inset: 256px 5% 72px;
+      inset: calc(var(--clock-row) + 228px) 5% 72px;
       display: grid;
       place-items: center;
       pointer-events: none;
@@ -285,15 +288,34 @@
 
     .score svg { width: 100%; height: 100%; fill: currentColor; }
 
+    @media (max-width: 639px) {
+      .toolbar { top: calc(var(--clock-row) + 4px); }
+      #clock { width: calc(50vw - 0.5rem); }
+      .set-clock { left: 75%; width: calc(50vw - 0.5rem); }
+      #rally-strip { top: calc(var(--clock-row) + 84px); }
+      .side .timeouts { top: calc(var(--clock-row) + 128px); }
+      .first-server-button { top: calc(var(--clock-row) + 208px); }
+      #status { top: calc(var(--clock-row) + 276px); }
+      .score { top: calc(var(--clock-row) + 308px); }
+    }
+
     @media (max-height: 480px) and (min-width: 640px) {
-      #rally-strip { top: 4px; left: 4px; right: 315px; }
-      .score { top: 212px; }
+      #rally-strip {
+        top: auto;
+        bottom: 4px;
+        right: calc(50% + var(--countdown-width) / 2 + 8px);
+        height: 64px;
+      }
+      .side .timeouts { top: calc(var(--clock-row) + 4px); gap: 72px; }
+      .first-server-button { top: calc(var(--clock-row) + 9px); }
+      #status { top: calc(var(--clock-row) + 84px); }
+      .score { top: calc(var(--clock-row) + 120px); }
     }
 
     .timeouts {
       position: absolute;
       z-index: 1;
-      top: 84px;
+      top: calc(var(--clock-row) + 48px);
       left: 1%;
       right: 1%;
       display: flex;
@@ -418,9 +440,9 @@
     <button id="countdown" type="button" aria-label="Start countdown: 2:00"
       aria-describedby="countdown-note" data-state="idle">2:00</button>
     <button class="set-clock" type="button" aria-label="Start set timer" title="Start set timer">
-      <span class="set-label">SET</span><span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
+      <span id="set-duration" role="timer" aria-label="Set duration">0:00</span>
     </button>
-    <time id="clock" aria-label="Local date and time"></time>
+    <time id="clock" aria-label="Local time"></time>
     <span id="countdown-note" class="sr-only">Two-minute countdown. Automatic start at :58.</span>
     <div id="status" role="status" aria-atomic="true">
       <span class="winner-label" aria-hidden="true"></span>
@@ -428,7 +450,6 @@
       <span id="winner-announcement" class="sr-only"></span>
     </div>
     <div id="rally-strip" role="region" aria-label="Rallies in scoring order" tabindex="0">
-      <span id="rally-strip-label">Rallies</span>
       <ol id="rallies"></ol>
     </div>
   </header>
@@ -688,6 +709,7 @@
     function renderFirstServer() {
       firstServerButtons.forEach((button, side) => {
         button.setAttribute('aria-pressed', String(firstServer === side));
+        button.dataset.selection = firstServer === null ? 'none' : 'chosen';
         button.setAttribute('aria-disabled', String(points.length > 0));
         button.title = points.length > 0 ? 'First server cannot be changed after scoring starts'
           : `Select ${teams[side].toLowerCase()} as first server`;
@@ -1063,6 +1085,9 @@
     });
 
     const timeFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'medium' });
+    const clockFormat = new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+    });
     let clockFitKey = '';
     function fitClock() {
       const key = `${clock.clientWidth}:${clock.textContent}`;
@@ -1077,7 +1102,9 @@
 
     function fitSetClock() {
       setClock.style.fontSize = '';
-      const size = parseFloat(getComputedStyle(setClock).fontSize);
+      const size = Math.min(parseFloat(getComputedStyle(setClock).fontSize),
+        (setClock.clientHeight - 4) / 1.2);
+      setClock.style.fontSize = `${size}px`;
       if (setClock.scrollWidth > setClock.clientWidth && setClock.clientWidth > 8) {
         setClock.style.fontSize = `${size * (setClock.clientWidth - 8) / (setClock.scrollWidth - 8) * 0.98}px`;
       }
@@ -1089,7 +1116,7 @@
 
     function updateClocks() {
       const now = new Date();
-      const text = timeFormat.format(now);
+      const text = clockFormat.format(now);
       if (clock.textContent !== text) {
         clock.textContent = text;
         clock.dateTime = now.toISOString();
