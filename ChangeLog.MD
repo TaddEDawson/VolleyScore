@@ -1,7 +1,13 @@
 # Changelog
 
-## Unreleased
+## 1.0.3 - 2026-11-24
 
+- Added a save icon to download set scores, timing, first server, and the event
+  timeline as YYYYMMDD_HHMM_HHMM.log using local start/end times. In-progress
+  exports use the save time as their end time.
+- Tightened vertical spacing and control sizes to leave more room for scores.
+- Moved the rally strip to the bottom of the display with a transparent background,
+  below the two-minute countdown.
 - Removed borders and standardized timer text sizing. The set timer's colon
   remains centered on the display as its duration changes.
 - Moved the enlarged set and system clocks to the top, removed the visible SET

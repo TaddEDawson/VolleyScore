@@ -31,19 +31,21 @@ The red and blue panels fill the screen. Controls retain touch targets of at
 least 44 by 44 CSS pixels, with transparent backgrounds over the panels. Help
 and reset dialogs retain opaque backgrounds for readability.
 
-- **New set** (circular refresh arrows), **Full screen**, and **Help** appear at
+- **New set** (circular refresh arrows), **Save** (disk icon), **Full screen**,
+  **Help**, and **Statistics** appear at
   the upper right, below the clocks on narrower screens. The set-duration
   control is at the top center without a visible label; select it to start it.
 - Each side has two stopwatch buttons above its score.
 - A volleyball button centered above each score selects that side as the first
   server. After selection, its ball is 1.5 times its original size and the other
   ball is half-sized. Both return to their original sizes on reset.
-- A horizontal rally strip shows the current set's points in scoring order,
-  red or blue for the scoring side, with each square showing that team's score.
+- A transparent horizontal rally strip at the bottom shows the current set's
+  points in scoring order, red or blue for the scoring side, with each square
+  showing that team's score.
   Scroll it to see earlier rallies. There is no visible rally-strip heading;
   its accessible name remains available.
-- The **two-minute countdown** is at the bottom center. The larger **local time**
-  appears at the top left in 24-hour `HH:MM:SS` format.
+- The **two-minute countdown** is centered just above the rally strip. The larger
+  **local time** appears at the top left in 24-hour `HH:MM:SS` format.
 - All timer and timeout text uses the same responsive font size. The set
   timer's colon stays centered on the display as its duration grows.
 - Controls and dialogs have no borders. Keyboard focus remains visibly outlined.
@@ -52,7 +54,7 @@ and reset dialogs retain opaque backgrounds for readability.
 - Countdown guidance is available through its tooltip and accessible description
   rather than a visible line of instructions.
 - **Help**, shown as a question mark, opens a quick functionality synopsis and shows
-  the app version (**1.0.2**).
+  the app version (**1.0.3**).
 - **Statistics**, shown as `#`, opens the current set timeline.
 - **Full screen**, shown as diagonal arrows, is immediately to the left of Help.
 - A **WINNER** label appears above the winning side after the set ends. Its space
@@ -102,6 +104,20 @@ The timeline records set starts, points, corrections, timeout calls, wins, and
 reopened sets. Opening Statistics does not pause timers. A confirmed **New set**
 or page reload clears the timeline and first-server choice. See
 [ChangeLog.MD](ChangeLog.MD) for release summaries.
+
+### Saving set results
+
+Select **Save** (the disk icon) before resetting or closing the page to download
+a plain-text `.log` file containing the score, status, local start/end times,
+duration, first server, and full event timeline, including corrections and timeouts.
+Start the set timer or award a point before saving. Saving does not pause timers
+or clear the set.
+
+Filenames use `YYYYMMDD_HHMM_HHMM.log`: local start date, start time, and end time.
+For example, `20261124_1420_1443.log` represents a set started on November 24, 2026
+at 14:20 and finished at 14:43. Finished sets use the recorded winning time,
+even if saved later; unfinished sets use the save time and are marked in progress.
+Reopening a set removes its previous end time until it is won again.
 
 ## Scoring controls
 
@@ -262,7 +278,7 @@ the next hour. Future hourly automatic countdowns still work.
   clock.
 - Panel colors, the 25-point target, and the two-point winning
   margin are fixed. There are no configurable team names, 15-point deciding-set
-  mode, match-level set totals, past-set history, undo, export, or multi-device syncing.
+  mode, match-level set totals, past-set history, undo, or multi-device syncing.
 - Use a current browser supporting CSS Grid, SVG, and
   modern JavaScript APIs. Help and reset confirmation require native HTML dialog
   support.
@@ -285,7 +301,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
    clears both scores, the winner, all timers, and used timeouts.
 8. Portrait and landscape layouts retain equally sized score panels without
    scrolling, and all controls work with keyboard focus.
-9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.2`,
+9. **Help** appears with the upper-right buttons, opens the synopsis with version `1.0.3`,
    starts at the top, and closes without changing scores or stopping timers.
 10. Header controls retain readable text and 44-pixel minimum touch targets.
     Winner and countdown-completion status messages provide useful context
@@ -303,3 +319,9 @@ To check the page after changes, open [index.html](index.html) directly and veri
     score and updates after points and corrections.
 16. After a win, check the recap chart follows both scores, including corrections;
     reopening the set hides the recap until the next win.
+17. Save a finished set and check the `.log` filename uses its local start date
+    and start/end times, not the later download time. Check the score, duration,
+    first server, corrections, and timeout entries match Statistics. Save an
+    unfinished set and check it is marked in progress with the current save time.
+18. Check the transparent rally strip stays at the bottom below the countdown,
+    with no overlap between controls and scores in portrait and landscape.
