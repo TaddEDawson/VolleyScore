@@ -504,7 +504,8 @@
       <li><strong>Full screen (diagonal arrows):</strong> Expand the scoreboard to fill the screen.
         Select the icon again or press Escape to leave full-screen mode.</li>
       <li><strong>Statistics (#):</strong> View the current set timeline. The rally strip
-        shows active points in order, colored by team. Choose the first server with
+        shows active points in order, colored by team and numbered by that team's score.
+        Choose the first server with
         the volleyball above either score, in Statistics, or at the first point.
         Both teams start in rotation 1; the team gaining
         serve rotates to the next position, wrapping from 6 to 1.
@@ -670,12 +671,15 @@
 
     function renderRallies() {
       const activePoints = points.filter(point => !point.corrected);
+      const teamScores = [0, 0];
       rallies.replaceChildren(...activePoints.map((point, index) => {
         const rally = document.createElement('li');
+        const score = ++teamScores[point.team];
+        const label = `Rally ${index + 1}: ${teams[point.team]} point, score ${score}`;
         rally.className = point.team === 0 ? 'red' : 'blue';
-        rally.textContent = String(index + 1);
-        rally.setAttribute('aria-label', `Rally ${index + 1}: ${teams[point.team]} point`);
-        rally.title = `Rally ${index + 1}: ${teams[point.team]} point`;
+        rally.textContent = String(score);
+        rally.setAttribute('aria-label', label);
+        rally.title = label;
         return rally;
       }));
       rallyStrip.scrollLeft = rallyStrip.scrollWidth;
