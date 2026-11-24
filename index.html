@@ -152,6 +152,14 @@
     }
     #first-server { padding: 0.5rem; font: inherit; }
     #first-server-label { display: block; margin-block: 0.75rem; }
+    .team-red { color: #ff7b82; }
+    .team-blue { color: #86bbff; }
+    #score-chart { display: block; width: 100%; height: auto; }
+    #score-chart text { fill: #fff; font: 14px system-ui, sans-serif; }
+    #score-chart .axis { stroke: #ffffff99; fill: none; }
+    #score-chart .red-line { stroke: #ff7b82; fill: none; stroke-width: 3; }
+    #score-chart .blue-line { stroke: #86bbff; fill: none; stroke-width: 3; stroke-dasharray: 6 3; }
+    .chart-legend { display: flex; gap: 1rem; font-weight: bold; }
 
     dialog button {
       border: 1px solid currentColor;
@@ -223,15 +231,64 @@
     .red { background: #b00020; }
     .blue { background: #001f54; }
 
+    .first-server-button {
+      position: absolute;
+      z-index: 1;
+      top: 164px;
+      left: 1%;
+      width: 44px;
+      height: 44px;
+      padding: 4px;
+      border: 1px solid transparent;
+      border-radius: 50%;
+    }
+
+    .first-server-button[aria-pressed="true"] { border-color: currentColor; background: #0006; }
+    .first-server-button svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; }
+
+    #rally-strip {
+      position: fixed;
+      z-index: 1;
+      top: 212px;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      height: 40px;
+      padding: 0.25rem;
+      overflow-x: auto;
+      background: #101218e8;
+      pointer-events: auto;
+    }
+    #rally-strip-label { flex: none; font-size: 0.8rem; }
+    #rallies { display: flex; gap: 2px; margin: 0; padding: 0; list-style: none; }
+    #rallies li {
+      display: grid;
+      flex: none;
+      place-items: center;
+      min-width: 28px;
+      height: 28px;
+      border: 1px solid #fff9;
+      border-radius: 0.2rem;
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+    }
+
     .score {
       position: absolute;
-      inset: 204px 5% 72px;
+      inset: 256px 5% 72px;
       display: grid;
       place-items: center;
       pointer-events: none;
     }
 
     .score svg { width: 100%; height: 100%; fill: currentColor; }
+
+    @media (max-height: 480px) and (min-width: 640px) {
+      #rally-strip { top: 4px; left: 4px; right: 315px; }
+      .score { top: 212px; }
+    }
 
     .timeouts {
       position: absolute;
@@ -315,6 +372,7 @@
       outline: 2px solid currentColor;
       outline-offset: -4px;
     }
+    #rally-strip:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 
     .point, .subtract { grid-column: span 2; }
 
@@ -369,6 +427,10 @@
       <span class="winner-label" aria-hidden="true"></span>
       <span id="winner-announcement" class="sr-only"></span>
     </div>
+    <div id="rally-strip" role="region" aria-label="Rallies in scoring order" tabindex="0">
+      <span id="rally-strip-label">Rallies</span>
+      <ol id="rallies"></ol>
+    </div>
   </header>
   <div id="countdown-announcement" class="sr-only" role="status" aria-atomic="true"></div>
   <div id="timeout-announcement" class="sr-only" role="status" aria-atomic="true"></div>
@@ -380,6 +442,13 @@
         <button class="timeout" type="button" aria-label="Red timeout 1"></button>
         <button class="timeout" type="button" aria-label="Red timeout 2"></button>
       </div>
+      <button class="first-server-button" type="button" aria-label="Select red as first server"
+        title="Select red as first server" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 2c3 2 4 5 4 8M21 7c-3-1-6-1-9 1M21 16c-2-3-4-5-7-6M12 22c1-3 1-6-1-9M3 17c3 0 6-1 8-4M3 7c2 2 5 3 8 3"/>
+        </svg>
+      </button>
       <output class="score" aria-label="Red score 00"><svg aria-hidden="true" preserveAspectRatio="xMidYMin meet"></svg></output>
     </section>
     <section class="side blue" aria-label="Blue side">
@@ -389,6 +458,13 @@
         <button class="timeout" type="button" aria-label="Blue timeout 1"></button>
         <button class="timeout" type="button" aria-label="Blue timeout 2"></button>
       </div>
+      <button class="first-server-button" type="button" aria-label="Select blue as first server"
+        title="Select blue as first server" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 2c3 2 4 5 4 8M21 7c-3-1-6-1-9 1M21 16c-2-3-4-5-7-6M12 22c1-3 1-6-1-9M3 17c3 0 6-1 8-4M3 7c2 2 5 3 8 3"/>
+        </svg>
+      </button>
       <output class="score" aria-label="Blue score 00"><svg aria-hidden="true" preserveAspectRatio="xMidYMin meet"></svg></output>
     </section>
   </main>
@@ -423,12 +499,14 @@
         Active countdowns cannot restart; expiration shows TIMES UP without sound.</li>
       <li><strong>New set (circular arrows):</strong> Asks for confirmation before clearing scores
         or timers already in use. Cancel keeps the current set.
-        After a win, the confirmation shows the final score and set timing details.
+        After a win, the confirmation shows the final score, set timing details, and a running-score chart.
         During minutes :58 and :59, it cancels that hour's automatic countdown.</li>
       <li><strong>Full screen (diagonal arrows):</strong> Expand the scoreboard to fill the screen.
         Select the icon again or press Escape to leave full-screen mode.</li>
-      <li><strong>Statistics (#):</strong> View the current set timeline. Choose the first
-        server before scoring. Both teams start in rotation 1; the team gaining
+      <li><strong>Statistics (#):</strong> View the current set timeline. The rally strip
+        shows active points in order, colored by team. Choose the first server with
+        the volleyball above either score, in Statistics, or at the first point.
+        Both teams start in rotation 1; the team gaining
         serve rotates to the next position, wrapping from 6 to 1.
         Corrections undo that team's latest uncorrected point and recalculate
         rotations. New set clears the timeline.</li>
@@ -480,6 +558,14 @@
       <dt>End Time</dt><dd id="set-end-time"></dd>
       <dt>Set Duration</dt><dd id="final-duration"></dd>
     </dl>
+    <figure id="chart-figure" hidden>
+      <figcaption>Running score by scoring change</figcaption>
+      <div class="chart-legend"><span class="team-red">Red — solid</span><span class="team-blue">Blue — dashed</span></div>
+      <svg id="score-chart" viewBox="0 0 600 240" role="img" aria-labelledby="chart-title chart-description">
+        <title id="chart-title">Running score</title>
+        <desc id="chart-description"></desc>
+      </svg>
+    </figure>
     <p id="reset-message">This clears both scores, all timers, used timeouts, and statistics. This cannot be undone.</p>
     <form method="dialog">
       <button type="submit" value="cancel" autofocus>Cancel</button>
@@ -508,6 +594,9 @@
     const setClock = document.querySelector('.set-clock');
     const statisticsDialog = document.querySelector('#statistics-dialog');
     const firstServerSelect = document.querySelector('#first-server');
+    const firstServerButtons = document.querySelectorAll('.first-server-button');
+    const rallyStrip = document.querySelector('#rally-strip');
+    const rallies = document.querySelector('#rallies');
     const serverDialog = document.querySelector('#server-dialog');
     const timelineBody = document.querySelector('#timeline tbody');
     const events = [];
@@ -568,9 +657,10 @@
         const values = [timeFormat.format(event.time), event.type,
           event.team === null ? '-' : teams[event.team],
           event.rotation === null ? '-' : String(event.rotation), event.score.join(' - ')];
-        values.forEach(value => {
+        values.forEach((value, index) => {
           const cell = document.createElement('td');
           cell.textContent = value;
+          if (index === 2 && event.team !== null) cell.className = event.team === 0 ? 'team-red' : 'team-blue';
           row.append(cell);
         });
         return row;
@@ -578,9 +668,42 @@
       timelineBody.replaceChildren(...rows);
     }
 
+    function renderRallies() {
+      const activePoints = points.filter(point => !point.corrected);
+      rallies.replaceChildren(...activePoints.map((point, index) => {
+        const rally = document.createElement('li');
+        rally.className = point.team === 0 ? 'red' : 'blue';
+        rally.textContent = String(index + 1);
+        rally.setAttribute('aria-label', `Rally ${index + 1}: ${teams[point.team]} point`);
+        rally.title = `Rally ${index + 1}: ${teams[point.team]} point`;
+        return rally;
+      }));
+      rallyStrip.scrollLeft = rallyStrip.scrollWidth;
+    }
+
+    function renderFirstServer() {
+      firstServerButtons.forEach((button, side) => {
+        button.setAttribute('aria-pressed', String(firstServer === side));
+        button.setAttribute('aria-disabled', String(points.length > 0));
+        button.title = points.length > 0 ? 'First server cannot be changed after scoring starts'
+          : `Select ${teams[side].toLowerCase()} as first server`;
+      });
+      firstServerSelect.value = firstServer === null ? '' : String(firstServer);
+      firstServerSelect.disabled = points.length > 0;
+    }
+
+    firstServerButtons.forEach((button, side) => {
+      button.addEventListener('click', () => {
+        if (points.length > 0) return;
+        firstServer = side;
+        renderFirstServer();
+      });
+    });
+
     firstServerSelect.addEventListener('change', () => {
       if (points.length > 0) return;
       firstServer = firstServerSelect.value === '' ? null : Number(firstServerSelect.value);
+      renderFirstServer();
     });
 
     document.querySelector('#statistics').addEventListener('click', () => {
@@ -595,6 +718,7 @@
       pendingPoint = null;
       if (side === null || !['0', '1'].includes(serverDialog.returnValue)) return;
       firstServer = Number(serverDialog.returnValue);
+      renderFirstServer();
       awardPoint(side);
     });
 
@@ -804,6 +928,8 @@
       points.push({ team: side, corrected: false });
       recalculateRotations();
       recordEvent('Point', side);
+      renderRallies();
+      renderFirstServer();
       render(now);
     }
 
@@ -828,6 +954,7 @@
         scores[side]--;
         recalculateRotations();
         recordEvent('Point corrected', side);
+        renderRallies();
         render();
       });
     });
@@ -840,12 +967,15 @@
       firstServer = null;
       pendingPoint = null;
       renderStatistics();
+      renderFirstServer();
+      renderRallies();
       winner = -1;
       setRunningSince = null;
       setElapsed = 0;
       setStartedAt = null;
       setEndedAt = null;
       document.querySelector('#set-summary').hidden = true;
+      document.querySelector('#chart-figure').hidden = true;
       document.querySelectorAll('#set-summary dd').forEach(field => { field.textContent = ''; });
       countdownEndsAt = 0;
       activeTimeout = null;
@@ -861,18 +991,55 @@
     }
 
     const resetDialog = document.querySelector('#reset-dialog');
+    function renderScoreChart() {
+      const changes = events.filter(event => event.type === 'Point' || event.type === 'Point corrected');
+      const chart = document.querySelector('#score-chart');
+      const maxScore = Math.max(1, ...changes.flatMap(event => event.score));
+      const x = index => 44 + 536 * index / changes.length;
+      const y = score => 200 - 180 * score / maxScore;
+      const svgElement = (name, attributes, text = '') => {
+        const element = document.createElementNS('http://www.w3.org/2000/svg', name);
+        for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+        if (text) element.textContent = text;
+        return element;
+      };
+      chart.querySelector('#chart-description').textContent =
+        `Red and blue scores after each scoring change, including corrections. Starting at 0 - 0. ${
+          changes.map((event, index) => `${index + 1}: ${event.score.join(' - ')}${event.type === 'Point corrected' ? ' (correction)' : ''}`).join('; ')}.`;
+      chart.querySelectorAll('.chart-content').forEach(element => element.remove());
+      const content = svgElement('g', { class: 'chart-content' });
+      content.append(
+        svgElement('path', { class: 'axis', d: 'M44 20V200H580' }),
+        svgElement('text', { x: 37, y: 205, 'text-anchor': 'end' }, '0'),
+        svgElement('text', { x: 37, y: 25, 'text-anchor': 'end' }, String(maxScore)),
+        svgElement('text', { x: 44, y: 220, 'text-anchor': 'middle' }, '0'),
+        svgElement('text', { x: 580, y: 220, 'text-anchor': 'middle' }, String(changes.length)),
+        svgElement('text', { x: 312, y: 238, 'text-anchor': 'middle' }, 'Scoring changes')
+      );
+      for (let side = 0; side < 2; side++) {
+        let path = `M${x(0)} ${y(0)}`;
+        changes.forEach((event, index) => {
+          path += ` H${x(index + 1)} V${y(event.score[side])}`;
+        });
+        content.append(svgElement('path', { class: side === 0 ? 'red-line' : 'blue-line', d: path }));
+      }
+      chart.append(content);
+    }
+
     document.querySelector('#reset').addEventListener('click', () => {
       if (scores.some(score => score > 0) || setRunningSince !== null
         || setElapsed > 0 || countdownEndsAt !== 0 || activeTimeout !== null
-        || timeoutUsed.some(Boolean)) {
+        || timeoutUsed.some(Boolean) || firstServer !== null) {
         resetDialog.returnValue = 'cancel';
         const summary = document.querySelector('#set-summary');
         summary.hidden = winner === -1;
+        document.querySelector('#chart-figure').hidden = winner === -1;
         if (winner !== -1) {
           document.querySelector('#final-score').textContent = scores.join(' - ');
           document.querySelector('#set-start-time').textContent = timeFormat.format(setStartedAt);
           document.querySelector('#set-end-time').textContent = timeFormat.format(setEndedAt);
           document.querySelector('#final-duration').textContent = formatDuration(Math.floor(setElapsed / 1000));
+          renderScoreChart();
         }
         resetDialog.showModal();
       } else {

@@ -35,6 +35,9 @@ and reset dialogs retain opaque backgrounds for readability.
   the upper right. The **Set** duration control is above the two-minute countdown
   at the bottom center, with **SET** above its value; select it to start the timer.
 - Each side has two stopwatch buttons above its score.
+- A volleyball button above each score selects that side as the first server.
+- A horizontal rally strip shows the current set's points in scoring order,
+  red or blue for the scoring side. Scroll it to see earlier rallies.
 - The **two-minute countdown** is at the bottom center. The device's **local
   date and time** appear in the lower-right corner.
 - The countdown is dimmed while idle and brightens when started manually or
@@ -75,8 +78,8 @@ visible first. Its Close button stays at the top while the content scrolls.
 ### Set statistics
 
 Select **#** to see a chronological timeline with local event time, event type,
-team, rotation (1-6), and score. Choose the first serving team in Statistics
-before scoring, or choose it when the first point is awarded. Cancelling the
+team, rotation (1-6), and score. Choose the first serving team with the volleyball
+button above its score, in Statistics before scoring, or when the first point is awarded. Cancelling the
 first-server prompt does not award that point. Both teams start at rotation 1.
 The team gaining serve rotates forward, wrapping from 6 to 1; consecutive
 points by the serving team do not change its rotation.
@@ -85,7 +88,8 @@ Point scores are always red first. Timeout entries identify the calling team
 and show its score first, saved when the timeout was called. Score corrections
 undo that team's latest uncorrected point and recalculate current rotations
 from remaining points; earlier timeline snapshots remain unchanged. The first
-server cannot change after scoring starts.
+server cannot change after scoring starts, even if all points are corrected.
+The rally strip removes corrected points and renumbers the remaining rallies.
 
 The timeline records set starts, points, corrections, timeout calls, wins, and
 reopened sets. Opening Statistics does not pause timers. A confirmed **New set**
@@ -210,13 +214,15 @@ to the set.
 
 ## Reset behavior
 
-**New set** asks for confirmation if scores, set duration, countdown, or timeout state
+**New set** asks for confirmation if a first server, scores, set duration, countdown, or timeout state
 would be lost. **Cancel** is initially focused. Select **Start new set** to
 confirm, or **Cancel** or **Escape** to keep the current scores and timers.
 Timers keep running while confirmation is open. An unused set resets immediately.
 
 After the set is won, selecting **New set** displays the final score (red first),
-start time, end time, and set duration in the confirmation. Start time is when
+start time, end time, set duration, and a running-score step chart in the
+confirmation. The chart plots red and blue scores after each point or correction,
+including downward steps for corrections. Start time is when
 the timer was manually started or the first point awarded; end time is when the
 set was won, not when reset was selected. Reopening a set preserves its original
 start time and records a new end time when it is won again. Cancelling preserves
@@ -286,3 +292,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
     **#**. Only side-outs rotate a team; corrections recalculate rotations.
 14. Check timeout entries show the calling team's saved score first, and that
     cancelling reset preserves statistics while confirming clears them.
+15. Select either volleyball before scoring and check the selection is locked
+    once scoring starts. Check the rally strip updates after points and corrections.
+16. After a win, check the recap chart follows both scores, including corrections;
+    reopening the set hides the recap until the next win.
