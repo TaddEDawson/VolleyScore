@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VolleyScore</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; border: 0; }
 
     body {
       --countdown-width: min(46vw, 360px);
@@ -40,11 +40,6 @@
       pointer-events: auto;
     }
 
-    #reset {
-      border: 1px solid currentColor;
-      border-radius: 0.35rem;
-    }
-
     #countdown {
       position: fixed;
       bottom: 0.25rem;
@@ -69,7 +64,7 @@
       position: fixed;
       top: 0;
       left: 0.25rem;
-      width: calc((100vw - 320px) * 0.4);
+      width: calc(32.5vw - 0.5rem);
       height: var(--clock-row);
       display: flex;
       align-items: center;
@@ -84,12 +79,12 @@
     .set-clock {
       position: fixed;
       top: 0;
-      left: calc((100vw - 320px) * 0.7);
+      left: 50%;
       transform: translateX(-50%);
       display: grid;
       place-items: center;
       height: var(--clock-row);
-      width: calc((100vw - 320px) * 0.6 - 0.5rem);
+      width: 35vw;
       padding: 0 0.25rem;
       font-size: 1rem;
       line-height: 1.1;
@@ -116,7 +111,6 @@
     }
 
     .clock-actions button {
-      border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.1em 0.6em;
     }
@@ -126,7 +120,6 @@
       max-height: 90vh;
       max-height: 90dvh;
       overflow: auto;
-      border: 1px solid #fff;
       border-radius: 0.5rem;
       padding: 1.25rem;
       background: #101218;
@@ -143,7 +136,6 @@
     #timeline { width: 100%; border-collapse: collapse; }
     #timeline th, #timeline td {
       padding: 0.5rem;
-      border-bottom: 1px solid #ffffff60;
       text-align: left;
       white-space: nowrap;
     }
@@ -159,7 +151,6 @@
     .chart-legend { display: flex; gap: 1rem; font-weight: bold; }
 
     dialog button {
-      border: 1px solid currentColor;
       border-radius: 0.35rem;
       padding: 0.35em 0.8em;
     }
@@ -237,11 +228,9 @@
       width: 66px;
       height: 66px;
       padding: 4px;
-      border: 1px solid transparent;
       border-radius: 50%;
     }
 
-    .first-server-button[aria-pressed="true"] { border-color: currentColor; }
     .first-server-button svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 1.5; }
     .first-server-button[aria-pressed="true"] svg { width: 54px; height: 54px; }
     .first-server-button[aria-pressed="false"][data-selection="chosen"] svg { width: 18px; height: 18px; }
@@ -282,10 +271,8 @@
 
     .score svg { width: 100%; height: 100%; fill: currentColor; }
 
-    @media (max-width: 639px) {
+    @media (max-width: 999px) {
       .toolbar { top: calc(var(--clock-row) + 4px); }
-      #clock { width: calc(50vw - 0.5rem); }
-      .set-clock { left: 75%; width: calc(50vw - 0.5rem); }
       #rally-strip { top: calc(var(--clock-row) + 84px); }
       .side .timeouts { top: calc(var(--clock-row) + 128px); }
       .first-server-button { top: calc(var(--clock-row) + 208px); }
@@ -304,6 +291,13 @@
       .first-server-button { top: calc(var(--clock-row) + 9px); }
       #status { top: calc(var(--clock-row) + 84px); }
       .score { top: calc(var(--clock-row) + 120px); }
+    }
+
+    @media (max-height: 480px) and (min-width: 640px) and (max-width: 999px) {
+      .side .timeouts { top: calc(var(--clock-row) + 84px); }
+      .first-server-button { top: calc(var(--clock-row) + 89px); }
+      #status { top: calc(var(--clock-row) + 164px); }
+      .score { top: calc(var(--clock-row) + 200px); }
     }
 
     .timeouts {
@@ -331,11 +325,6 @@
     }
 
     .timeout[data-state="blocked"] { opacity: 0.6; }
-    .timeout[data-state="available"], .timeout[data-state="blocked"] {
-      border: 1px solid currentColor;
-      border-radius: 0.35rem;
-    }
-
     .timeout svg {
       width: 72px;
       height: 72px;
@@ -380,7 +369,7 @@
       stroke-linejoin: round;
     }
 
-    .icon-button[aria-pressed="true"] { border-style: dashed; }
+    .icon-button[aria-pressed="true"] { background: #ffffff33; }
 
     button[aria-disabled="true"] { cursor: not-allowed; }
 

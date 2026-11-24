@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Removed non-icon scoreboard box outlines and standardized timer text sizing.
-  The set timer's colon remains centered as its duration changes.
+- Removed borders and standardized timer text sizing. The set timer's colon
+  remains centered on the display as its duration changes.
 - Moved the enlarged set and system clocks to the top, removed the visible SET
   label, and formatted system time as 24-hour HH:MM:SS.
 - Centered volleyball selectors above the scores and scaled selected/unselected
