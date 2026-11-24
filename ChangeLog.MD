@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed rally strip squares to show the scoring team's running score.
+
 ## 1.0.2 - 2026-11-24
 
 - Added a red and blue rally strip and volleyball buttons for selecting the first server.

@@ -37,7 +37,8 @@ and reset dialogs retain opaque backgrounds for readability.
 - Each side has two stopwatch buttons above its score.
 - A volleyball button above each score selects that side as the first server.
 - A horizontal rally strip shows the current set's points in scoring order,
-  red or blue for the scoring side. Scroll it to see earlier rallies.
+  red or blue for the scoring side, with each square showing that team's score.
+  Scroll it to see earlier rallies.
 - The **two-minute countdown** is at the bottom center. The device's **local
   date and time** appear in the lower-right corner.
 - The countdown is dimmed while idle and brightens when started manually or
@@ -89,7 +90,7 @@ and show its score first, saved when the timeout was called. Score corrections
 undo that team's latest uncorrected point and recalculate current rotations
 from remaining points; earlier timeline snapshots remain unchanged. The first
 server cannot change after scoring starts, even if all points are corrected.
-The rally strip removes corrected points and renumbers the remaining rallies.
+The rally strip removes corrected points and recalculates each team's remaining scores.
 
 The timeline records set starts, points, corrections, timeout calls, wins, and
 reopened sets. Opening Statistics does not pause timers. A confirmed **New set**
@@ -293,6 +294,7 @@ To check the page after changes, open [index.html](index.html) directly and veri
 14. Check timeout entries show the calling team's saved score first, and that
     cancelling reset preserves statistics while confirming clears them.
 15. Select either volleyball before scoring and check the selection is locked
-    once scoring starts. Check the rally strip updates after points and corrections.
+    once scoring starts. Check the rally strip shows each scoring team's running
+    score and updates after points and corrections.
 16. After a win, check the recap chart follows both scores, including corrections;
     reopening the set hides the recap until the next win.
